@@ -1,3 +1,5 @@
+// ignore_for_file: unreachable_switch_default
+
 import 'dart:math';
 import 'package:flutter/material.dart'
     show Color, TextStyle, Rect, Canvas, Size, CustomPainter;

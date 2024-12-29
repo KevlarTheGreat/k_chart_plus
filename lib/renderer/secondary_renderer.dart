@@ -1,3 +1,5 @@
+// ignore_for_file: unreachable_switch_default
+
 import 'package:flutter/material.dart';
 import '../entity/macd_entity.dart';
 import '../k_chart_widget.dart' show SecondaryState;
