@@ -2,7 +2,40 @@ import 'dart:math';
 
 import '../entity/index.dart';
 
+
 class DataUtil {
+
+
+  /// Calculates various technical indicators for a list of KLineEntity data.
+  ///
+  /// This method calculates the following indicators:
+  /// - Moving Average (MA)
+  /// - Bollinger Bands (BOLL)
+  /// - Volume Moving Average (Volume MA)
+  /// - Stochastic Oscillator (KDJ)
+  /// - Moving Average Convergence Divergence (MACD)
+  /// - Relative Strength Index (RSI)
+  /// - Williams %R (WR)
+  /// - Commodity Channel Index (CCI)
+  ///
+  /// The default parameters for the calculations are:
+  /// - [dataList] is the list of KLineEntity objects for which the indicators will be calculated.
+  /// - [maDayList]: A list of integers representing the periods for the moving averages. Default is [5, 10, 20].
+  /// - [n]: An integer representing the period for the Bollinger Bands calculation. Default is 20.
+  /// - [k]: A double representing the number of standard deviations for the Bollinger Bands calculation. Default is 2.
+  ///
+  /// Usage:
+  /// ```dart
+  /// List<KLineEntity> dataList = // your data here;
+  /// DataUtil.calculate(dataList);
+  /// ```
+  ///
+  /// You can also provide custom parameters:
+  /// ```dart
+  /// List<KLineEntity> dataList = // your data here;
+  /// DataUtil.calculate(dataList, [7, 14, 28], 21, 2.5);
+  /// ```
+  ///
   static calculate(List<KLineEntity> dataList,
       [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2]) {
     calcMA(dataList, maDayList);
@@ -39,6 +72,46 @@ class DataUtil {
     }
   }
 
+
+  /// Calculates the Bollinger Bands (BOLL) for a given list of KLineEntity data.
+  ///
+  /// Bollinger Bands are a type of statistical chart characterizing the prices
+  /// and volatility over time of a financial instrument or commodity, using a
+  /// formulaic method propounded by John Bollinger in the 1980s.
+  ///
+  /// This function calculates the BOLL values and updates the provided list of
+  /// KLineEntity objects with the calculated values.
+  ///
+  /// The function first calculates the moving average (BOLLMA) for the given
+  /// period `n` and then computes the upper (up) and lower (dn) bands based on
+  /// the standard deviation of the closing prices.
+  ///
+  /// The formula for the upper and lower bands is:
+  /// - `up = mb + k * md`
+  /// - `dn = mb - k * md`
+  ///
+  /// Where:
+  /// - `mb` is the moving average (BOLLMA)
+  /// - `k` is the number of standard deviations
+  /// - `md` is the standard deviation of the closing prices
+  ///
+  /// The function updates each `KLineEntity` in the list with the calculated
+  /// `mb`, `up`, and `dn` values.
+  ///
+  /// Parameters:
+  /// - `dataList`: A list of `KLineEntity` objects containing the data to be
+  ///   processed.
+  /// - `n`: The period for calculating the moving average and standard deviation.
+  /// - `k`: The number of standard deviations to use for calculating the upper
+  ///   and lower bands.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// List<KLineEntity> dataList = getData();
+  /// int period = 20;
+  /// int numStdDev = 2;
+  /// calcBOLL(dataList, period, numStdDev);
+  /// ```
   static void calcBOLL(List<KLineEntity> dataList, int n, int k) {
     _calcBOLLMA(n, dataList);
     for (int i = 0; i < dataList.length; i++) {
@@ -90,14 +163,14 @@ class DataUtil {
         ema12 = closePrice;
         ema26 = closePrice;
       } else {
-        // EMA（12） = 前一日EMA（12） X 11/13 + 今日收盘价 X 2/13
+        // EMA(12) = Previous EMA(12) * 11/13 + Today's closing price * 2/13
         ema12 = ema12 * 11 / 13 + closePrice * 2 / 13;
-        // EMA（26） = 前一日EMA（26） X 25/27 + 今日收盘价 X 2/27
+        // EMA(26) = Previous EMA(26) * 25/27 + Today's closing price * 2/27
         ema26 = ema26 * 25 / 27 + closePrice * 2 / 27;
-      }
-      // DIF = EMA（12） - EMA（26） 。
-      // 今日DEA = （前一日DEA X 8/10 + 今日DIF X 2/10）
-      // 用（DIF-DEA）*2即为MACD柱状图。
+            }
+            // DIF = EMA(12) - EMA(26)
+            // Today's DEA = (Previous DEA * 8/10 + Today's DIF * 2/10)
+            // MACD histogram is (DIF - DEA) * 2
       dif = ema12 - ema26;
       dea = dea * 8 / 10 + dif * 2 / 10;
       macd = (dif - dea) * 2;

@@ -1,0 +1,1279 @@
+KevlarTheGreat: I want to remove these files from git but leave them on my local drive.  example/linux/flutter/generated_plugin_registrant.cc
+example/linux/flutter/generated_plugin_registrant.h
+example/linux/flutter/generated_plugins.cmake
+example/macos/Flutter/GeneratedPluginRegistrant.swift
+example/windows/flutter/CMakeLists.txt
+example/windows/flutter/generated_plugin_registrant.cc
+example/windows/flutter/generated_plugins.cmake
+
+GitHub Copilot: To remove these files from Git but leave them on your local drive, you can use the following commands in your terminal:
+
+1. Remove the files from Git's index:
+```sh
+git rm --cached example/linux/flutter/generated_plugin_registrant.cc
+git rm --cached example/linux/flutter/generated_plugin_registrant.h
+git rm --cached example/linux/flutter/generated_plugins.cmake
+git rm --cached example/macos/Flutter/GeneratedPluginRegistrant.swift
+git rm --cached example/windows/flutter/CMakeLists.txt
+git rm --cached example/windows/flutter/generated_plugin_registrant.cc
+git rm --cached example/windows/flutter/generated_plugins.cmake
+```
+
+2. Commit the changes:
+```sh
+git commit -m "Remove generated files from Git tracking"
+```
+
+3. Ensure these files are listed in your 
+
+.gitignore
+
+ (which they already are based on your selection).
+
+This will remove the files from the Git repository while keeping them on your local drive.
+
+KevlarTheGreat: drawMACD draws the MACD part of the chart.  What does the "dif" and the "dea" likely represent?
+
+GitHub Copilot: In the context of the MACD (Moving Average Convergence Divergence) indicator, "dif" and "dea" likely represent the following:
+
+- **DIF**: This is typically the difference between the short-term and long-term exponential moving averages (EMAs). It is also known as the MACD line itself.
+- **DEA**: This is the signal line, which is usually the EMA of the DIF line. It is also known as the MACD signal line.
+
+So, in the `drawMACD` function:
+- `lastPoint.dif` and `curPoint.dif` represent the DIF values at the previous and current points, respectively.
+- `lastPoint.dea` and `curPoint.dea` represent the DEA values at the previous and current points, respectively.
+
+These values are used to draw the lines on the MACD chart.
+
+KevlarTheGreat: How does the hilighted code work?
+
+GitHub Copilot: The highlighted code defines a `DataUtil` class with a static method `calculate`. This method performs various calculations on a list of `KLineEntity` data. Here's a step-by-step explanation:
+
+1. **Method Signature**:
+   ```dart
+   static calculate(List<KLineEntity> dataList,
+       [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2])
+   ```
+   - `dataList`: A list of `KLineEntity` objects representing the data to be processed.
+   - `maDayList`: An optional list of integers representing the days for moving averages (default is `[5, 10, 20]`).
+   - `n`: An optional integer parameter for the BOLL calculation (default is `20`).
+   - `k`: An optional integer parameter for the BOLL calculation (default is `2`).
+
+2. **Calculations**:
+   The method calls several other methods to perform different technical analysis calculations on the `dataList`:
+   ```dart
+   calcMA(dataList, maDayList);
+   calcBOLL(dataList, n, k);
+   calcVolumeMA(dataList);
+   calcKDJ(dataList);
+   calcMACD(dataList);
+   calcRSI(dataList);
+   calcWR(dataList);
+   calcCCI(dataList);
+   ```
+   - `calcMA(dataList, maDayList)`: Calculates moving averages for the specified days.
+   - `calcBOLL(dataList, n, k)`: Calculates Bollinger Bands using parameters `n` and `k`.
+   - `calcVolumeMA(dataList)`: Calculates volume moving averages.
+   - `calcKDJ(dataList)`: Calculates the KDJ indicator.
+   - `calcMACD(dataList)`: Calculates the MACD indicator.
+   - `calcRSI(dataList)`: Calculates the Relative Strength Index (RSI).
+   - `calcWR(dataList)`: Calculates the Williams %R indicator.
+   - `calcCCI(dataList)`: Calculates the Commodity Channel Index (CCI).
+
+Each of these methods processes the `dataList` to compute the respective technical indicators, which are commonly used in financial analysis and trading.
+
+KevlarTheGreat: Where do the results of all of these calculations end up?
+
+GitHub Copilot: The results of the calculations performed by the `DataUtil` class methods are stored directly in the properties of the `KLineEntity` objects within the `dataList`. Each `KLineEntity` object represents a data point in the list and has properties to hold the results of various technical indicators.
+
+For example, in the `calcBOLL` method:
+- The `BOLLMA` property of each `KLineEntity` is calculated and stored by the `_calcBOLLMA` method.
+- The `mb`, `up`, and `dn` properties of each `KLineEntity` are calculated and stored within the `calcBOLL` method.
+
+Here's a breakdown of where the results are stored:
+- **Moving Average (MA)**: Stored in properties like `ma5`, `ma10`, `ma20`, etc., of each `KLineEntity`.
+- **Bollinger Bands (BOLL)**: Stored in the `BOLLMA`, `mb`, `up`, and `dn` properties of each `KLineEntity`.
+- **Volume Moving Average (Volume MA)**: Stored in properties like `volumeMa5`, `volumeMa10`, etc., of each `KLineEntity`.
+- **Stochastic Oscillator (KDJ)**: Stored in the `k`, `d`, and `j` properties of each `KLineEntity`.
+- **Moving Average Convergence Divergence (MACD)**: Stored in the `dif`, `dea`, and `macd` properties of each `KLineEntity`.
+- **Relative Strength Index (RSI)**: Stored in properties like `rsi6`, `rsi12`, etc., of each `KLineEntity`.
+- **Williams %R (WR)**: Stored in properties like `wr14`, `wr28`, etc., of each `KLineEntity`.
+- **Commodity Channel Index (CCI)**: Stored in the `cci` property of each `KLineEntity`.
+
+Each calculation method updates the relevant properties of the `KLineEntity` objects in the `dataList`, allowing these objects to hold all the computed technical indicator values.
+
+KevlarTheGreat: Explain the high level functionality of this file.
+
+GitHub Copilot: The 
+
+main.dart
+
+ file appears to be part of a Flutter application, and the provided code snippet is responsible for building part of the user interface (UI). Here's a high-level overview of its functionality:
+
+1. **UI Structure**:
+   - The code constructs a column of widgets that make up part of the app's UI.
+   - It includes titles, buttons, and a conditional container for displaying a depth chart.
+
+2. **Titles and Buttons**:
+   - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+   - `buildVolButton()`: Presumably builds a button related to volume.
+   - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+   - `buildMainButtons()`: Presumably builds buttons related to the main state.
+   - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+   - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+
+3. **Depth Chart**:
+   - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+   - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+   - It contains a `DepthChart` widget, which is initialized with `_bids`, `_asks`, and `chartColors`.
+
+4. **Helper Method**:
+   - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget containing a `Text` widget styled with the app's theme.
+
+Overall, this file is responsible for constructing a section of the app's UI, including titles, buttons, and a depth chart, based on the provided data and state.
+
+KevlarTheGreat: That's really good but you missed the KChartWidget which is the primary part of the UI.   Can you create a response similar to the one you just created but add mention of the KChartWidget and how the data that is sent to it is managed?
+
+GitHub Copilot: Sure, here's an updated high-level overview of the 
+
+main.dart
+
+ file, including the `KChartWidget` and how the data sent to it is managed:
+
+The 
+
+main.dart
+
+ file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI). Here's a high-level overview of its functionality:
+
+1. **UI Structure**:
+   - The code constructs a column of widgets that make up part of the app's UI.
+   - It includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
+
+2. **KChartWidget**:
+   - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
+   - It is initialized with several parameters:
+     - `datas`: The data to be displayed on the chart.
+     - `chartStyle` and `chartColors`: Styling and color information for the chart.
+     - `mBaseHeight`: The base height of the chart.
+     - `isTrendLine`: A boolean indicating whether to show trend lines.
+     - `mainState`: The state of the main chart.
+     - `volHidden`: A boolean indicating whether the volume is hidden.
+     - `secondaryStateLi`: A set of secondary states for the chart.
+     - `fixedLength`: The number of decimal places to display.
+     - `timeFormat`: The format for displaying time on the chart.
+
+3. **Titles and Buttons**:
+   - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+   - `buildVolButton()`: Presumably builds a button related to volume.
+   - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+   - `buildMainButtons()`: Presumably builds buttons related to the main state.
+   - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+   - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+
+4. **Depth Chart**:
+   - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+   - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+   - It contains a `DepthChart` widget, which is initialized with `_bids`, `_asks`, and `chartColors`.
+
+5. **Loading Indicator**:
+   - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
+
+6. **Helper Method**:
+   - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget containing a `Text` widget styled with the app's theme.
+
+7. **Data Management**:
+   - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
+   - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
+
+Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles, buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component, displaying the financial data managed by the state of the widget.
+
+KevlarTheGreat: Please add a description of how the data is loaded and how indicators are calculated using the DataUtil.calculate method and how that is used by the KChartWidget
+
+GitHub Copilot: Certainly! Here's an updated high-level overview of the 
+
+main.dart
+
+ file, including how data is loaded, how indicators are calculated using the `DataUtil.calculate` method, and how this data is used by the `KChartWidget`:
+
+The 
+
+main.dart
+
+ file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI). Here's a high-level overview of its functionality:
+
+1. **UI Structure**:
+   - The code constructs a column of widgets that make up part of the app's UI.
+   - It includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
+
+2. **KChartWidget**:
+   - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
+   - It is initialized with several parameters:
+     - `datas`: The data to be displayed on the chart.
+     - `chartStyle` and `chartColors`: Styling and color information for the chart.
+     - `mBaseHeight`: The base height of the chart.
+     - `isTrendLine`: A boolean indicating whether to show trend lines.
+     - `mainState`: The state of the main chart.
+     - `volHidden`: A boolean indicating whether the volume is hidden.
+     - `secondaryStateLi`: A set of secondary states for the chart.
+     - `fixedLength`: The number of decimal places to display.
+     - `timeFormat`: The format for displaying time on the chart.
+
+3. **Titles and Buttons**:
+   - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+   - `buildVolButton()`: Presumably builds a button related to volume.
+   - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+   - `buildMainButtons()`: Presumably builds buttons related to the main state.
+   - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+   - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+
+4. **Depth Chart**:
+   - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+   - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+   - It contains a `DepthChart` widget, which is initialized with `_bids`, `_asks`, and `chartColors`.
+
+5. **Loading Indicator**:
+   - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
+
+6. **Helper Method**:
+   - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget containing a `Text` widget styled with the app's theme.
+
+7. **Data Management**:
+   - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
+   - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
+
+8. **Loading Data**:
+   - `getChatDataFromJson()`: Asynchronously loads JSON data from the `assets/chatData.json` file.
+   - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and calculates technical indicators using `DataUtil.calculate(datas!)`.
+   - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
+
+9. **Calculating Indicators**:
+   - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average, Bollinger Bands, MACD) for the `datas` list.
+   - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
+
+10. **Using Data in KChartWidget**:
+    - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
+    - The widget displays the chart based on the provided data, styles, and states.
+
+Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles, buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component, displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed, and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the `KChartWidget` to render the chart.
+
+KevlarTheGreat: I renamed some of the functions and methods to fix some typos.  Can you update this to reflect those name changes?
+
+GitHub Copilot: Sure, please provide the updated function and method names so I can accurately reflect those changes in the description.
+
+KevlarTheGreat: chatData.json is now chartData.json    solveChatData is now solveChartData     getChatDataFromJson is now getChartDataFromJson
+
+GitHub Copilot: Got it! Here's the updated high-level overview of the 
+
+main.dart
+
+ file, reflecting the renamed functions and methods:
+
+The 
+
+main.dart
+
+ file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI). Here's a high-level overview of its functionality:
+
+1. **UI Structure**:
+   - The code constructs a column of widgets that make up part of the app's UI.
+   - It includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
+
+2. **KChartWidget**:
+   - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
+   - It is initialized with several parameters:
+     - `datas`: The data to be displayed on the chart.
+     - `chartStyle` and `chartColors`: Styling and color information for the chart.
+     - `mBaseHeight`: The base height of the chart.
+     - `isTrendLine`: A boolean indicating whether to show trend lines.
+     - `mainState`: The state of the main chart.
+     - `volHidden`: A boolean indicating whether the volume is hidden.
+     - `secondaryStateLi`: A set of secondary states for the chart.
+     - `fixedLength`: The number of decimal places to display.
+     - `timeFormat`: The format for displaying time on the chart.
+
+3. **Titles and Buttons**:
+   - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+   - `buildVolButton()`: Presumably builds a button related to volume.
+   - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+   - `buildMainButtons()`: Presumably builds buttons related to the main state.
+   - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+   - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+
+4. **Depth Chart**:
+   - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+   - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+   - It contains a `DepthChart` widget, which is initialized with `_bids`, `_asks`, and `chartColors`.
+
+5. **Loading Indicator**:
+   - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
+
+6. **Helper Method**:
+   - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget containing a `Text` widget styled with the app's theme.
+
+7. **Data Management**:
+   - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
+   - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
+
+8. **Loading Data**:
+   - `getChartDataFromJson()`: Asynchronously loads JSON data from the `assets/chartData.json` file.
+   - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and calculates technical indicators using `DataUtil.calculate(datas!)`.
+   - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
+
+9. **Calculating Indicators**:
+   - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average, Bollinger Bands, MACD) for the `datas` list.
+   - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
+
+10. **Using Data in KChartWidget**:
+    - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
+    - The widget displays the chart based on the provided data, styles, and states.
+
+Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles, buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component, displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed, and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the `KChartWidget` to render the chart.
+
+KevlarTheGreat: This is great.  Can you format this into a nice comment block that I can paste into the top of the file?
+
+GitHub Copilot: Sure, here's the high-level overview formatted as a comment block that you can paste at the top of your 
+
+main.dart
+
+ file:
+
+```dart
+/// This file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI).
+/// 
+/// High-level overview:
+/// 
+/// 1. **UI Structure**:
+///    - Constructs a column of widgets that make up part of the app's UI.
+///    - Includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
+/// 
+/// 2. **KChartWidget**:
+///    - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
+///    - Initialized with several parameters:
+///      - `datas`: The data to be displayed on the chart.
+///      - `chartStyle` and `chartColors`: Styling and color information for the chart.
+///      - `mBaseHeight`: The base height of the chart.
+///      - `isTrendLine`: A boolean indicating whether to show trend lines.
+///      - `mainState`: The state of the main chart.
+///      - `volHidden`: A boolean indicating whether the volume is hidden.
+///      - `secondaryStateLi`: A set of secondary states for the chart.
+///      - `fixedLength`: The number of decimal places to display.
+///      - `timeFormat`: The format for displaying time on the chart.
+/// 
+/// 3. **Titles and Buttons**:
+///    - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+///    - `buildVolButton()`: Presumably builds a button related to volume.
+///    - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+///    - `buildMainButtons()`: Presumably builds buttons related to the main state.
+///    - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+///    - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+/// 
+/// 4. **Depth Chart**:
+///    - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+///    - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+///    - Contains a `DepthChart` widget, initialized with `_bids`, `_asks`, and `chartColors`.
+/// 
+/// 5. **Loading Indicator**:
+///    - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
+/// 
+/// 6. **Helper Method**:
+///    - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget containing a `Text` widget styled with the app's theme.
+/// 
+/// 7. **Data Management**:
+///    - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
+///    - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
+/// 
+/// 8. **Loading Data**:
+///    - `getChartDataFromJson()`: Asynchronously loads JSON data from the `assets/chartData.json` file.
+///    - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and calculates technical indicators using `DataUtil.calculate(datas!)`.
+///    - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
+/// 
+/// 9. **Calculating Indicators**:
+///    - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average, Bollinger Bands, MACD) for the `datas` list.
+///    - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
+/// 
+/// 10. **Using Data in KChartWidget**:
+///     - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
+///     - The widget displays the chart based on the provided data, styles, and states.
+/// 
+/// Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles, buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component, displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed, and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the `KChartWidget` to render the chart.
+```
+
+KevlarTheGreat: Instead of loading fdata from a JSON file, I'm going to connect this to live data using a websocket provider that provides streaming stock data.  At a high level, how would you describe the changes required to make sure that each time the data is updated, the indicators and charts are updated?
+
+GitHub Copilot: To connect your Flutter application to live data using a WebSocket provider and ensure that each time the data is updated, the indicators and charts are updated, you would need to make several changes. Here's a high-level overview of the required changes:
+
+1. **Set Up WebSocket Connection**:
+   - Establish a WebSocket connection to the live data provider.
+   - Listen for incoming data updates from the WebSocket.
+
+2. **Handle Incoming Data**:
+   - Parse the incoming data to convert it into a list of `KLineEntity` objects.
+   - Update the `datas` list with the new data.
+
+3. **Calculate Indicators**:
+   - Use the `DataUtil.calculate` method to calculate the technical indicators for the updated `datas` list.
+
+4. **Update the UI**:
+   - Call `setState` to refresh the UI and update the `KChartWidget` with the new data and calculated indicators.
+
+Here is a high-level outline of the changes in code:
+
+### 1. Set Up WebSocket Connection
+```dart
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+class _MyHomePageState extends State<MyHomePage> {
+  WebSocketChannel? channel;
+
+  @override
+  void initState() {
+    super.initState();
+    connectToWebSocket();
+  }
+
+  void connectToWebSocket() {
+    channel = WebSocketChannel.connect(Uri.parse('wss://your-websocket-url'));
+    channel!.stream.listen((data) {
+      handleIncomingData(data);
+    });
+  }
+
+  @override
+  void dispose() {
+    channel?.sink.close();
+    super.dispose();
+  }
+}
+```
+
+### 2. Handle Incoming Data
+```dart
+void handleIncomingData(String data) {
+  final Map parseJson = json.decode(data) as Map<dynamic, dynamic>;
+  final list = parseJson['data'] as List<dynamic>;
+  datas = list
+      .map((item) => KLineEntity.fromJson(item as Map<String, dynamic>))
+      .toList()
+      .reversed
+      .toList()
+      .cast<KLineEntity>();
+  updateChartData();
+}
+```
+
+### 3. Calculate Indicators and Update the UI
+```dart
+void updateChartData() {
+  DataUtil.calculate(datas!);
+  setState(() {
+    showLoading = false;
+  });
+}
+```
+
+### Summary of Changes
+1. **WebSocket Connection**: Establish a WebSocket connection and listen for incoming data.
+2. **Data Handling**: Parse the incoming data and update the `datas` list.
+3. **Indicator Calculation**: Calculate the technical indicators using `DataUtil.calculate`.
+4. **UI Update**: Call `setState` to refresh the UI and update the `KChartWidget`.
+
+By following these steps, you can ensure that your application updates the indicators and charts in real-time as new data is received from the WebSocket provider.
+
+Similar code found with 1 license type
+
+KevlarTheGreat: I would like to be able to add custom indicators to the secondary charts.  What approach might be best?
+
+GitHub Copilot: To add custom indicators to the secondary charts in your Flutter application, you can follow these steps:
+
+1. **Define Custom Indicator Calculation**:
+   - Create a method to calculate your custom indicator.
+   - Add the calculated values to the `KLineEntity` objects.
+
+2. **Update DataUtil Class**:
+   - Modify the `DataUtil` class to include the custom indicator calculation.
+
+3. **Modify the UI to Display Custom Indicators**:
+   - Update the `KChartWidget` to support displaying custom indicators.
+   - Add buttons or controls to toggle the display of custom indicators.
+
+### Step-by-Step Approach
+
+### 1. Define Custom Indicator Calculation
+Create a method to calculate your custom indicator and add it to the `KLineEntity` objects.
+
+```dart
+class DataUtil {
+  static void calculate(List<KLineEntity> dataList) {
+    // Existing calculations
+    calcMA(dataList, [5, 10, 20]);
+    calcBOLL(dataList, 20, 2);
+    calcVolumeMA(dataList);
+    calcKDJ(dataList);
+    calcMACD(dataList);
+    calcRSI(dataList);
+    calcWR(dataList);
+    calcCCI(dataList);
+
+    // Custom indicator calculation
+    calcCustomIndicator(dataList);
+  }
+
+  static void calcCustomIndicator(List<KLineEntity> dataList) {
+    for (var i = 0; i < dataList.length; i++) {
+      final entity = dataList[i];
+      // Example custom indicator calculation
+      entity.customIndicator = (entity.close - entity.open) / entity.open * 100;
+    }
+  }
+}
+```
+
+### 2. Update KLineEntity Class
+Add a property to the `KLineEntity` class to store the custom indicator value.
+
+```dart
+class KLineEntity {
+  double? open;
+  double? close;
+  double? high;
+  double? low;
+  double? volume;
+  double? customIndicator; // Add this line
+
+  KLineEntity.fromJson(Map<String, dynamic> json) {
+    open = json['open'];
+    close = json['close'];
+    high = json['high'];
+    low = json['low'];
+    volume = json['vol'];
+    customIndicator = json['customIndicator']; // Add this line
+  }
+}
+```
+
+### 3. Modify the UI to Display Custom Indicators
+Update the `KChartWidget` to support displaying custom indicators and add controls to toggle their display.
+
+#### Update KChartWidget
+Modify the `KChartWidget` to include logic for displaying the custom indicator.
+
+```dart
+class KChartWidget extends StatelessWidget {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+
+  KChartWidget({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size.infinite,
+      painter: KChartPainter(
+        datas: datas,
+        chartStyle: chartStyle,
+        chartColors: chartColors,
+        mainState: mainState,
+        volHidden: volHidden,
+        secondaryStateLi: secondaryStateLi,
+        fixedLength: fixedLength,
+        timeFormat: timeFormat,
+      ),
+    );
+  }
+}
+```
+
+#### Add Controls to Toggle Custom Indicators
+Add buttons or controls to toggle the display of custom indicators.
+
+```dart
+Widget buildSecondButtons() {
+  return Row(
+    children: SecondaryState.values.map((e) {
+      return _buildButton(
+        context: context,
+        title: e.name,
+        isActive: _secondaryStateLi.contains(e),
+        onPress: () {
+          setState(() {
+            if (_secondaryStateLi.contains(e)) {
+              _secondaryStateLi.remove(e);
+            } else {
+              _secondaryStateLi.add(e);
+            }
+          });
+        },
+      );
+    }).toList(),
+  );
+}
+
+Widget _buildButton({
+  required BuildContext context,
+  required String title,
+  required bool isActive,
+  required Function onPress,
+}) {
+  late Color? bgColor, txtColor;
+  if (isActive) {
+    bgColor = Theme.of(context).primaryColor.withOpacity(0.15);
+    txtColor = Theme.of(context).primaryColor;
+  } else {
+    bgColor = Colors.transparent;
+    txtColor = Theme.of(context).textTheme.bodyText1?.color;
+  }
+  return GestureDetector(
+    onTap: () => onPress(),
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(color: txtColor),
+      ),
+    ),
+  );
+}
+```
+
+### Summary
+1. **Define Custom Indicator Calculation**: Create a method to calculate your custom indicator and add it to the `KLineEntity` objects.
+2. **Update DataUtil Class**: Modify the `DataUtil` class to include the custom indicator calculation.
+3. **Modify the UI to Display Custom Indicators**: Update the `KChartWidget` to support displaying custom indicators and add controls to toggle their display.
+
+By following these steps, you can add custom indicators to the secondary charts and provide users with the ability to toggle their display.
+
+KevlarTheGreat: When the calculate function is called from main.dart (like this: DataUtil.calculate(datas!)) does the content of "datas" get modified by the calculate method or any of the methods called from it?
+
+GitHub Copilot: Yes, the content of `datas` gets modified by the `calculate` method and the methods called from it. The `calculate` method in `DataUtil` processes the list of `KLineEntity` objects and updates their properties with the calculated values for various technical indicators.
+
+Here's how it works:
+
+1. **calculate Method**:
+   - The `calculate` method calls several other methods (`calcMA`, `calcBOLL`, `calcVolumeMA`, `calcKDJ`, `calcMACD`, `calcRSI`, `calcWR`, `calcCCI`) to compute different technical indicators.
+   - Each of these methods iterates over the `dataList` (which is the `datas` list passed from `main.dart`) and updates the properties of each `KLineEntity` object.
+
+2. **Modification of `datas`**:
+   - For example, `calcMA` calculates moving averages and updates the corresponding properties in each `KLineEntity` object.
+   - Similarly, `calcBOLL` calculates Bollinger Bands and updates the properties related to Bollinger Bands in each `KLineEntity` object.
+   - This pattern is followed by all the other methods called within `calculate`.
+
+Here is a simplified example of how one of these methods might modify the `datas` list:
+
+```dart
+static calcMA(List<KLineEntity> dataList, List<int> maDayList) {
+  List<double> ma = List<double>.filled(maDayList.length, 0);
+  for (int i = 0; i < dataList.length; i++) {
+    final entity = dataList[i];
+    for (int j = 0; j < maDayList.length; j++) {
+      if (i >= maDayList[j] - 1) {
+        double sum = 0;
+        for (int k = 0; k < maDayList[j]; k++) {
+          sum += dataList[i - k].close;
+        }
+        ma[j] = sum / maDayList[j];
+      }
+      // Update the KLineEntity with the calculated MA value
+      entity.setMA(maDayList[j], ma[j]);
+    }
+  }
+}
+```
+
+In this example, `calcMA` calculates the moving averages and updates the `KLineEntity` objects in the `dataList` (which is the `datas` list from `main.dart`).
+
+### Summary
+When `DataUtil.calculate(datas!)` is called from `main.dart`, the `datas` list is modified by the `calculate` method and the methods it calls. Each method updates the properties of the `KLineEntity` objects within the `datas` list with the calculated values for various technical indicators.
+
+KevlarTheGreat: This project has a chart renderer and chart painter.  I think the secondary renderer is used to render the optional secondary indicators.  How does this all seem to work based on the open files?
+
+GitHub Copilot: Based on the provided context and the typical structure of such projects, here's a high-level overview of how the chart rendering and painting likely work in your project:
+
+### Components Involved
+
+1. **Chart Renderer**:
+   - Responsible for rendering the main chart and possibly some primary indicators.
+   - Likely includes methods to draw various parts of the chart, such as candlesticks, volume bars, etc.
+
+2. **Chart Painter**:
+   - A `CustomPainter` that handles the actual drawing on the canvas.
+   - Uses the renderer to draw different components of the chart.
+
+3. **Secondary Renderer**:
+   - Specifically used to render optional secondary indicators (e.g., MACD, RSI, Bollinger Bands).
+   - Contains methods to draw these secondary indicators on the chart.
+
+### How It All Works Together
+
+1. **Data Preparation**:
+   - Data is loaded and processed (e.g., from a JSON file or WebSocket).
+   - Technical indicators are calculated using the `DataUtil.calculate` method, which updates the `KLineEntity` objects with the necessary values.
+
+2. **Chart Widget**:
+   - The `KChartWidget` is the main widget that displays the chart.
+   - It initializes the `ChartPainter` with the data and configuration.
+
+3. **Chart Painter**:
+   - The `ChartPainter` is a `CustomPainter` that handles the drawing logic.
+   - It uses the `ChartRenderer` to draw the main chart components.
+   - It also uses the `SecondaryRenderer` to draw the secondary indicators.
+
+4. **Rendering Process**:
+   - The `ChartPainter` calls the `ChartRenderer` to draw the primary chart components.
+   - If secondary indicators are enabled, the `ChartPainter` calls the `SecondaryRenderer` to draw these indicators on top of the main chart.
+
+### Example Flow
+
+1. **Data Loading and Calculation**:
+   - Data is loaded and parsed into `KLineEntity` objects.
+   - `DataUtil.calculate(datas!)` is called to calculate technical indicators.
+
+2. **Chart Widget Initialization**:
+   - `KChartWidget` is initialized with the data and configuration.
+   - It creates an instance of `ChartPainter`.
+
+3. **Painting the Chart**:
+   - `ChartPainter`'s `paint` method is called.
+   - It uses the `ChartRenderer` to draw the main chart components.
+   - It uses the `SecondaryRenderer` to draw secondary indicators if they are enabled.
+
+### Code Snippets
+
+**ChartPainter**:
+```dart
+class ChartPainter extends CustomPainter {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+
+  ChartPainter({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw main chart components
+    ChartRenderer.drawChart(canvas, datas, chartStyle, chartColors);
+
+    // Draw secondary indicators if enabled
+    if (secondaryStateLi.isNotEmpty) {
+      SecondaryRenderer.drawChart(canvas, datas, secondaryStateLi, chartStyle, chartColors);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+```
+
+**SecondaryRenderer**:
+```dart
+class SecondaryRenderer {
+  static void drawChart(Canvas canvas, List<KLineEntity> datas, List<SecondaryState> secondaryStateLi, ChartStyle chartStyle, ChartColors chartColors) {
+    for (var state in secondaryStateLi) {
+      switch (state) {
+        case SecondaryState.MACD:
+          drawMACD(datas, canvas, chartStyle, chartColors);
+          break;
+        case SecondaryState.RSI:
+          drawRSI(datas, canvas, chartStyle, chartColors);
+          break;
+        // Add other secondary indicators here
+      }
+    }
+  }
+
+  static void drawMACD(List<KLineEntity> datas, Canvas canvas, ChartStyle chartStyle, ChartColors chartColors) {
+    // Implementation for drawing MACD
+  }
+
+  static void drawRSI(List<KLineEntity> datas, Canvas canvas, ChartStyle chartStyle, ChartColors chartColors) {
+    // Implementation for drawing RSI
+  }
+}
+```
+
+### Summary
+
+- **Chart Renderer**: Draws the main chart components.
+- **Chart Painter**: A `CustomPainter` that uses the renderer to draw the chart and the secondary renderer to draw optional indicators.
+- **Secondary Renderer**: Specifically handles drawing secondary indicators like MACD, RSI, etc.
+- **Data Flow**: Data is loaded, processed, and passed to the `KChartWidget`, which uses the `ChartPainter` to render the chart and indicators.
+
+This structure allows for a modular and flexible approach to rendering both primary and secondary chart components.
+
+KevlarTheGreat: If I wanted to leave all the current technical indicators as they are but add additional unimplemented ones, that would be implemented or overridden in main.dart (ie: the user of the KChartWidget).  The calculation of the custom indicator and the custom painting may have to be provided in main.dart.
+
+GitHub Copilot: To add additional unimplemented technical indicators that can be implemented or overridden in `main.dart`, you can follow these steps:
+
+1. **Extend the `KChartWidget` to Support Custom Indicators**:
+   - Modify the `KChartWidget` to accept custom indicator calculation and painting functions.
+
+2. **Update the `DataUtil` Class**:
+   - Allow the `DataUtil` class to accept custom indicator calculation functions.
+
+3. **Modify the `ChartPainter` and `SecondaryRenderer`**:
+   - Update the `ChartPainter` and `SecondaryRenderer` to call custom painting functions.
+
+### Step-by-Step Implementation
+
+### 1. Extend the `KChartWidget` to Support Custom Indicators
+
+Modify the `KChartWidget` to accept custom indicator calculation and painting functions.
+
+```dart
+class KChartWidget extends StatelessWidget {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+  final Function(List<KLineEntity>)? customIndicatorCalculation;
+  final Function(Canvas, List<KLineEntity>, ChartStyle, ChartColors)? customIndicatorPainting;
+
+  KChartWidget({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+    this.customIndicatorCalculation,
+    this.customIndicatorPainting,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size.infinite,
+      painter: ChartPainter(
+        datas: datas,
+        chartStyle: chartStyle,
+        chartColors: chartColors,
+        mainState: mainState,
+        volHidden: volHidden,
+        secondaryStateLi: secondaryStateLi,
+        fixedLength: fixedLength,
+        timeFormat: timeFormat,
+        customIndicatorCalculation: customIndicatorCalculation,
+        customIndicatorPainting: customIndicatorPainting,
+      ),
+    );
+  }
+}
+```
+
+### 2. Update the `DataUtil` Class
+
+Allow the `DataUtil` class to accept custom indicator calculation functions.
+
+```dart
+class DataUtil {
+  static void calculate(List<KLineEntity> dataList,
+      [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2, Function(List<KLineEntity>)? customIndicatorCalculation]) {
+    calcMA(dataList, maDayList);
+    calcBOLL(dataList, n, k);
+    calcVolumeMA(dataList);
+    calcKDJ(dataList);
+    calcMACD(dataList);
+    calcRSI(dataList);
+    calcWR(dataList);
+    calcCCI(dataList);
+
+    // Custom indicator calculation
+    if (customIndicatorCalculation != null) {
+      customIndicatorCalculation(dataList);
+    }
+  }
+}
+```
+
+### 3. Modify the `ChartPainter` and `SecondaryRenderer`
+
+Update the `ChartPainter` and `SecondaryRenderer` to call custom painting functions.
+
+**ChartPainter**:
+```dart
+class ChartPainter extends CustomPainter {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+  final Function(List<KLineEntity>)? customIndicatorCalculation;
+  final Function(Canvas, List<KLineEntity>, ChartStyle, ChartColors)? customIndicatorPainting;
+
+  ChartPainter({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+    this.customIndicatorCalculation,
+    this.customIndicatorPainting,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw main chart components
+    ChartRenderer.drawChart(canvas, datas, chartStyle, chartColors);
+
+    // Draw secondary indicators if enabled
+    if (secondaryStateLi.isNotEmpty) {
+      SecondaryRenderer.drawChart(canvas, datas, secondaryStateLi, chartStyle, chartColors);
+    }
+
+    // Custom indicator painting
+    if (customIndicatorPainting != null) {
+      customIndicatorPainting!(canvas, datas, chartStyle, chartColors);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+```
+
+**SecondaryRenderer**:
+```dart
+class SecondaryRenderer {
+  static void drawChart(Canvas canvas, List<KLineEntity> datas, List<SecondaryState> secondaryStateLi, ChartStyle chartStyle, ChartColors chartColors) {
+    for (var state in secondaryStateLi) {
+      switch (state) {
+        case SecondaryState.MACD:
+          drawMACD(datas, canvas, chartStyle, chartColors);
+          break;
+        case SecondaryState.RSI:
+          drawRSI(datas, canvas, chartStyle, chartColors);
+          break;
+        // Add other secondary indicators here
+      }
+    }
+  }
+
+  static void drawMACD(List<KLineEntity> datas, Canvas canvas, ChartStyle chartStyle, ChartColors chartColors) {
+    // Implementation for drawing MACD
+  }
+
+  static void drawRSI(List<KLineEntity> datas, Canvas canvas, ChartStyle chartStyle, ChartColors chartColors) {
+    // Implementation for drawing RSI
+  }
+}
+```
+
+### Implementing Custom Indicators in `main.dart`
+
+In `main.dart`, you can now provide custom indicator calculation and painting functions when initializing the `KChartWidget`.
+
+```dart
+void customIndicatorCalculation(List<KLineEntity> dataList) {
+  for (var entity in dataList) {
+    // Custom indicator calculation logic
+    entity.customIndicator = (entity.close - entity.open) / entity.open * 100;
+  }
+}
+
+void customIndicatorPainting(Canvas canvas, List<KLineEntity> dataList, ChartStyle chartStyle, ChartColors chartColors) {
+  for (var entity in dataList) {
+    // Custom indicator painting logic
+    // Example: Draw a line for the custom indicator
+    final paint = Paint()
+      ..color = chartColors.customIndicatorColor
+      ..strokeWidth = 1.0;
+    canvas.drawLine(
+      Offset(entity.x, entity.customIndicatorY),
+      Offset(entity.x + 1, entity.customIndicatorY),
+      paint,
+    );
+  }
+}
+
+// In your build method or wherever you initialize the KChartWidget
+KChartWidget(
+  datas: datas,
+  chartStyle: chartStyle,
+  chartColors: chartColors,
+  mainState: mainState,
+  volHidden: volHidden,
+  secondaryStateLi: secondaryStateLi,
+  fixedLength: fixedLength,
+  timeFormat: timeFormat,
+  customIndicatorCalculation: customIndicatorCalculation,
+  customIndicatorPainting: customIndicatorPainting,
+);
+```
+
+### Summary
+
+1. **Extend `KChartWidget`**: Add parameters for custom indicator calculation and painting functions.
+2. **Update `DataUtil`**: Allow custom indicator calculation functions.
+3. **Modify `ChartPainter` and `SecondaryRenderer`**: Call custom painting functions.
+4. **Implement in `main.dart`**: Provide custom indicator calculation and painting functions when initializing `KChartWidget`.
+
+This approach allows you to add custom indicators that can be implemented or overridden in `main.dart`, providing flexibility for custom calculations and rendering.
+
+KevlarTheGreat: Take a look at the ChartPainter code in chart_painter.dart.  Does this change the approach?
+
+GitHub Copilot: Given the `ChartPainter` code in 
+
+chart_painter.dart
+
+, it appears that the `ChartPainter` already has a structure to handle multiple renderers, including the main renderer, volume renderer, and a list of secondary renderers. This structure can be leveraged to add custom indicators without significantly altering the existing architecture.
+
+### Updated Approach
+
+1. **Extend the `KChartWidget` to Support Custom Indicators**:
+   - Modify the `KChartWidget` to accept custom indicator calculation and painting functions.
+
+2. **Update the `DataUtil` Class**:
+   - Allow the `DataUtil` class to accept custom indicator calculation functions.
+
+3. **Modify the `ChartPainter`**:
+   - Update the `ChartPainter` to call custom painting functions.
+
+4. **Implement Custom Indicators in `main.dart`**:
+   - Provide custom indicator calculation and painting functions when initializing the `KChartWidget`.
+
+### Step-by-Step Implementation
+
+### 1. Extend the `KChartWidget` to Support Custom Indicators
+
+Modify the `KChartWidget` to accept custom indicator calculation and painting functions.
+
+```dart
+class KChartWidget extends StatelessWidget {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+  final Function(List<KLineEntity>)? customIndicatorCalculation;
+  final Function(Canvas, KLineEntity, KLineEntity, double, double, Size)? customIndicatorPainting;
+
+  KChartWidget({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+    this.customIndicatorCalculation,
+    this.customIndicatorPainting,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size.infinite,
+      painter: ChartPainter(
+        datas: datas,
+        chartStyle: chartStyle,
+        chartColors: chartColors,
+        mainState: mainState,
+        volHidden: volHidden,
+        secondaryStateLi: secondaryStateLi,
+        fixedLength: fixedLength,
+        timeFormat: timeFormat,
+        customIndicatorCalculation: customIndicatorCalculation,
+        customIndicatorPainting: customIndicatorPainting,
+      ),
+    );
+  }
+}
+```
+
+### 2. Update the `DataUtil` Class
+
+Allow the `DataUtil` class to accept custom indicator calculation functions.
+
+```dart
+class DataUtil {
+  static void calculate(List<KLineEntity> dataList,
+      [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2, Function(List<KLineEntity>)? customIndicatorCalculation]) {
+    calcMA(dataList, maDayList);
+    calcBOLL(dataList, n, k);
+    calcVolumeMA(dataList);
+    calcKDJ(dataList);
+    calcMACD(dataList);
+    calcRSI(dataList);
+    calcWR(dataList);
+    calcCCI(dataList);
+
+    // Custom indicator calculation
+    if (customIndicatorCalculation != null) {
+      customIndicatorCalculation(dataList);
+    }
+  }
+}
+```
+
+### 3. Modify the `ChartPainter`
+
+Update the `ChartPainter` to call custom painting functions.
+
+```dart
+class ChartPainter extends CustomPainter {
+  final List<KLineEntity> datas;
+  final ChartStyle chartStyle;
+  final ChartColors chartColors;
+  final MainState mainState;
+  final bool volHidden;
+  final List<SecondaryState> secondaryStateLi;
+  final int fixedLength;
+  final TimeFormat timeFormat;
+  final Function(List<KLineEntity>)? customIndicatorCalculation;
+  final Function(Canvas, KLineEntity, KLineEntity, double, double, Size)? customIndicatorPainting;
+
+  ChartPainter({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    required this.mainState,
+    required this.volHidden,
+    required this.secondaryStateLi,
+    required this.fixedLength,
+    required this.timeFormat,
+    this.customIndicatorCalculation,
+    this.customIndicatorPainting,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.translate(mTranslateX * scaleX, 0.0);
+    canvas.scale(scaleX, 1.0);
+    for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
+      KLineEntity? curPoint = datas?[i];
+      if (curPoint == null) continue;
+      KLineEntity lastPoint = i == 0 ? curPoint : datas![i - 1];
+      double curX = getX(i);
+      double lastX = i == 0 ? curX : getX(i - 1);
+
+      mMainRenderer.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
+      mVolRenderer?.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
+      mSecondaryRendererList.forEach((element) {
+        element.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
+      });
+
+      // Custom indicator painting
+      if (customIndicatorPainting != null) {
+        customIndicatorPainting!(canvas, lastPoint, curPoint, lastX, curX, size);
+      }
+    }
+
+    if ((isLongPress == true || (isTapShowInfoDialog && isOnTap)) &&
+        isTrendLine == false) {
+      drawCrossLine(canvas, size);
+    }
+    if (isTrendLine == true) drawTrendLines(canvas, size);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+```
+
+### 4. Implement Custom Indicators in `main.dart`
+
+Provide custom indicator calculation and painting functions when initializing the `KChartWidget`.
+
+```dart
+void customIndicatorCalculation(List<KLineEntity> dataList) {
+  for (var entity in dataList) {
+    // Custom indicator calculation logic
+    entity.customIndicator = (entity.close - entity.open) / entity.open * 100;
+  }
+}
+
+void customIndicatorPainting(Canvas canvas, KLineEntity lastPoint, KLineEntity curPoint, double lastX, double curX, Size size) {
+  // Custom indicator painting logic
+  // Example: Draw a line for the custom indicator
+  final paint = Paint()
+    ..color = Colors.blue
+    ..strokeWidth = 1.0;
+  canvas.drawLine(
+    Offset(lastX, lastPoint.customIndicator ?? 0),
+    Offset(curX, curPoint.customIndicator ?? 0),
+    paint,
+  );
+}
+
+// In your build method or wherever you initialize the KChartWidget
+KChartWidget(
+  datas: datas,
+  chartStyle: chartStyle,
+  chartColors: chartColors,
+  mainState: mainState,
+  volHidden: volHidden,
+  secondaryStateLi: secondaryStateLi,
+  fixedLength: fixedLength,
+  timeFormat: timeFormat,
+  customIndicatorCalculation: customIndicatorCalculation,
+  customIndicatorPainting: customIndicatorPainting,
+);
+```
+
+### Summary
+
+1. **Extend `KChartWidget`**: Add parameters for custom indicator calculation and painting functions.
+2. **Update `DataUtil`**: Allow custom indicator calculation functions.
+3. **Modify `ChartPainter`**: Call custom painting functions.
+4. **Implement in `main.dart`**: Provide custom indicator calculation and painting functions when initializing `KChartWidget`.
+
+This approach allows you to add custom indicators that can be implemented or overridden in `main.dart`, providing flexibility for custom calculations and rendering while leveraging the existing architecture.
+
+Similar code found with 3 license types

@@ -63,6 +63,16 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
     }
   }
 
+  /// Draw MACD line.  
+  /// The drawMACD function is responsible for drawing the MACD (Moving Average Convergence Divergence) line on a canvas. Here's a step-by-step explanation of how it works:
+  /// Parameters:
+  /// [curPoint]: The current MACD data point.
+  /// [canvas]: The canvas on which to draw.
+  /// [curX]: The x-coordinate for the current point.
+  /// [lastPoint]: The previous MACD data point.
+  /// [lastX]: The x-coordinate for the previous point.
+  /// DEA: The signal line for the MACD.
+  /// DIF: The the MACD line.
   void drawMACD(MACDEntity curPoint, Canvas canvas, double curX,
       MACDEntity lastPoint, double lastX) {
     final macd = curPoint.macd ?? 0;

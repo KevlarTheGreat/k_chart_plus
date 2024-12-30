@@ -24,4 +24,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/depth.json
-    - assets/chatData.json
+    - assets/chartData.json

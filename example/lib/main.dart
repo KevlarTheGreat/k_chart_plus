@@ -4,6 +4,74 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:k_chart_plus/k_chart_plus.dart';
 
+
+/// This file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI).
+/// 
+/// High-level overview:
+/// 
+/// 1. **UI Structure**:
+///    - Constructs a column of widgets that make up part of the app's UI.
+///    - Includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
+/// 
+/// 2. **KChartWidget**:
+///    - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
+///    - Initialized with several parameters:
+///      - `datas`: The data to be displayed on the chart.
+///      - `chartStyle` and `chartColors`: Styling and color information for the chart.
+///      - `mBaseHeight`: The base height of the chart.
+///      - `isTrendLine`: A boolean indicating whether to show trend lines.
+///      - `mainState`: The state of the main chart.
+///      - `volHidden`: A boolean indicating whether the volume is hidden.
+///      - `secondaryStateLi`: A set of secondary states for the chart.
+///      - `fixedLength`: The number of decimal places to display.
+///      - `timeFormat`: The format for displaying time on the chart.
+/// 
+/// 3. **Titles and Buttons**:
+///    - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
+///    - `buildVolButton()`: Presumably builds a button related to volume.
+///    - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
+///    - `buildMainButtons()`: Presumably builds buttons related to the main state.
+///    - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
+///    - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
+/// 
+/// 4. **Depth Chart**:
+///    - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
+///    - The container has a white background, a fixed height of 320, and takes the full width of its parent.
+///    - Contains a `DepthChart` widget, initialized with `_bids`, `_asks`, and `chartColors`.
+/// 
+/// 5. **Loading Indicator**:
+///    - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
+/// 
+/// 6. **Helper Method**:
+///    - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget 
+///       containing a `Text` widget styled with the app's theme.
+/// 
+/// 7. **Data Management**:
+///    - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
+///    - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
+/// 
+/// 8. **Loading Data**:
+///    - `getChartDataFromJson()`: Asynchronously loads JSON data from the `assets/chartData.json` file.
+///    - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and
+///       calculates technical indicators using `DataUtil.calculate(datas!)`.
+///    - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
+/// 
+/// 9. **Calculating Indicators**:
+///    - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average, 
+///       Bollinger Bands, MACD) for the `datas` list.
+///    - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
+/// 
+/// 10. **Using Data in KChartWidget**:
+///     - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
+///     - The widget displays the chart based on the provided data, styles, and states.
+/// 
+/// Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles,
+/// buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component,
+/// displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed,
+/// and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the
+///  `KChartWidget` to render the chart.
+
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -251,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final Future<String> future = getChatDataFromInternet(period);
     //final Future<String> future = getChatDataFromJson();
     future.then((String result) {
-      solveChatData(result);
+      solveChartData(result);
     }).catchError((_) {
       showLoading = false;
       setState(() {});
@@ -272,11 +340,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return result;
   }
 
-  Future<String> getChatDataFromJson() async {
-    return rootBundle.loadString('assets/chatData.json');
+  Future<String> getChartDataFromJson() async {
+    return rootBundle.loadString('assets/chartData.json');
   }
 
-  void solveChatData(String result) {
+  void solveChartData(String result) {
     final Map parseJson = json.decode(result) as Map<dynamic, dynamic>;
     final list = parseJson['data'] as List<dynamic>;
     datas = list
