@@ -4,15 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:k_chart_plus/k_chart_plus.dart';
 
-
 /// This file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI).
-/// 
+///
 /// High-level overview:
-/// 
+///
 /// 1. **UI Structure**:
 ///    - Constructs a column of widgets that make up part of the app's UI.
 ///    - Includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
-/// 
+///
 /// 2. **KChartWidget**:
 ///    - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
 ///    - Initialized with several parameters:
@@ -25,7 +24,7 @@ import 'package:k_chart_plus/k_chart_plus.dart';
 ///      - `secondaryStateLi`: A set of secondary states for the chart.
 ///      - `fixedLength`: The number of decimal places to display.
 ///      - `timeFormat`: The format for displaying time on the chart.
-/// 
+///
 /// 3. **Titles and Buttons**:
 ///    - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
 ///    - `buildVolButton()`: Presumably builds a button related to volume.
@@ -33,44 +32,43 @@ import 'package:k_chart_plus/k_chart_plus.dart';
 ///    - `buildMainButtons()`: Presumably builds buttons related to the main state.
 ///    - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
 ///    - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
-/// 
+///
 /// 4. **Depth Chart**:
 ///    - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
 ///    - The container has a white background, a fixed height of 320, and takes the full width of its parent.
 ///    - Contains a `DepthChart` widget, initialized with `_bids`, `_asks`, and `chartColors`.
-/// 
+///
 /// 5. **Loading Indicator**:
 ///    - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
-/// 
+///
 /// 6. **Helper Method**:
-///    - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget 
+///    - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget
 ///       containing a `Text` widget styled with the app's theme.
-/// 
+///
 /// 7. **Data Management**:
 ///    - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
 ///    - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
-/// 
+///
 /// 8. **Loading Data**:
 ///    - `getChartDataFromJson()`: Asynchronously loads JSON data from the `assets/chartData.json` file.
 ///    - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and
 ///       calculates technical indicators using `DataUtil.calculate(datas!)`.
 ///    - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
-/// 
+///
 /// 9. **Calculating Indicators**:
-///    - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average, 
+///    - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average,
 ///       Bollinger Bands, MACD) for the `datas` list.
 ///    - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
-/// 
+///
 /// 10. **Using Data in KChartWidget**:
 ///     - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
 ///     - The widget displays the chart based on the provided data, styles, and states.
-/// 
+///
 /// Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles,
 /// buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component,
 /// displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed,
 /// and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the
 ///  `KChartWidget` to render the chart.
-
 
 void main() => runApp(const MyApp());
 
@@ -110,9 +108,32 @@ class _MyHomePageState extends State<MyHomePage> {
   ChartStyle chartStyle = ChartStyle();
   ChartColors chartColors = ChartColors();
 
+  // Custom indicators
+  late List<CustomIndicator> customIndicators;
+
   @override
   void initState() {
     super.initState();
+
+    // Define the custom indicator/s
+    customIndicators = [
+      CustomIndicator(
+        name: 'Half Close Price',
+        chartType: ChartType.line,
+        calculate: (data) {
+          for (var entity in data) {
+            // Calculate the difference between the high and low prices
+            final diff = (entity.high - entity.low) / 2;
+            // Add 20% of the diff to the high price.
+            entity.high = entity.high + diff * 2;
+            // Subtract 20% of the diff from the low price.
+            entity.low = entity.low - diff * 2;
+          }
+        },
+      ),
+      // Add more custom indicators here
+    ];
+
     getData('1day');
     rootBundle.loadString('assets/depth.json').then((result) {
       final parseJson = json.decode(result);
@@ -160,9 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
           const SafeArea(bottom: false, child: SizedBox(height: 10)),
           Stack(children: <Widget>[
             KChartWidget(
-              datas,
-              chartStyle,
-              chartColors,
+              datas: datas,
+              chartStyle: chartStyle,
+              chartColors: chartColors,
               mBaseHeight: 360,
               isTrendLine: false,
               mainState: _mainState,
@@ -170,6 +191,10 @@ class _MyHomePageState extends State<MyHomePage> {
               secondaryStateLi: _secondaryStateLi.toSet(),
               fixedLength: 2,
               timeFormat: TimeFormat.YEAR_MONTH_DAY,
+              customIndicators: customIndicators,
+              maDayList: const [5, 10, 20],
+              n: 20,
+              k: 2,
             ),
             if (showLoading)
               Container(
@@ -289,8 +314,11 @@ class _MyHomePageState extends State<MyHomePage> {
       txtColor = Theme.of(context).primaryColor;
     } else {
       bgColor = Colors.transparent;
-      txtColor =
-          Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.75);
+      txtColor = Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.color
+          ?.withValues(alpha: 0.75);
     }
     return InkWell(
       onTap: () {
@@ -316,7 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void getData(String period) {
-    final Future<String> future = getChatDataFromInternet(period);
+    final Future<String> future = getChartDataFromInternet(period);
     //final Future<String> future = getChatDataFromJson();
     future.then((String result) {
       solveChartData(result);
@@ -327,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<String> getChatDataFromInternet(String? period) async {
+  Future<String> getChartDataFromInternet(String? period) async {
     var url =
         'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
     late String result;
@@ -353,7 +381,8 @@ class _MyHomePageState extends State<MyHomePage> {
         .reversed
         .toList()
         .cast<KLineEntity>();
-    DataUtil.calculate(datas!);
+
+    //DataUtil.calculate(datas!);
     showLoading = false;
     setState(() {});
   }

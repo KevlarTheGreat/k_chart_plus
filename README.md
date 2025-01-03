@@ -1,8 +1,26 @@
 # K Chart Plus Package
 
-## Feature
+## Feature / Summary
 
-Maybe this is the best k chart in Flutter.Support drag,scale,long press,fling.And easy to use.
+This is the best k chart (candlestick chart) package for flutter.  It supports drag, scale, long press, and fling as well as many built-in technical indicators, multi-chart panes, and much more.  It's powerful and and easy to use.  This fork started from TrangLeQuynh/k_chart_plus.  The main goal and feature enhancements in this project are:
+
+### Project Components:
+
+KChartWidget: The main widget that provides charting functionality, including financial technical indicators.
+
+Example Application: A sample app demonstrating how to use the KChartWidget and test its features.
+
+### Main Goal:
+
+Customization of Indicators: Allow developers using the KChartWidget to customize financial technical indicators. This customization is implemented and tested within the example application.
+
+### Implementation Steps:
+
+Extend KChartWidget: Add parameters for custom indicator calculation and painting functions.  
+Update DataUtil: Allow custom indicator calculation functions.  
+Modify ChartPainter: Call custom painting functions.  
+Implement in main.dart: Provide custom indicator calculation and painting functions when initializing KChartWidget.
+
 
 |Example1|Example2|
 |:-------------------------:|:-------------------------:|

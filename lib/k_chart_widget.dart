@@ -59,10 +59,16 @@ class KChartWidget extends StatefulWidget {
   final bool isTrendLine;
   final double xFrontPadding;
 
-  KChartWidget(
-    this.datas,
-    this.chartStyle,
-    this.chartColors, {
+  // Secondary Indicator Support
+  final List<CustomIndicator>? customIndicators;
+  final int n;
+  final int k;
+
+  KChartWidget({
+    required this.datas,
+    required this.chartStyle,
+    required this.chartColors,
+    this.customIndicators,
     required this.isTrendLine,
     this.xFrontPadding = 100,
     this.mainState = MainState.MA,
@@ -79,7 +85,11 @@ class KChartWidget extends StatefulWidget {
     this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
     this.onLoadMore,
     this.fixedLength = 2,
+    // TODO: For now, maDayList used for main and built-in secondary indicators. Need to separate them.
     this.maDayList = const [5, 10, 20],
+    //TODO: When maDayList is separated, it might be best to create a structure to hold the maDayList, n, and k values.
+    this.n = 20, // For built-in secondary indicators
+    this.k = 2, // For built-in secondary indicators
     this.flingTime = 600,
     this.flingRatio = 0.5,
     this.flingCurve = Curves.decelerate,
@@ -119,6 +129,29 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void initState() {
     super.initState();
+    _calculateIndicators();
+  }
+
+  void _calculateIndicators() {
+    DataUtil.calculate_indicators(
+      dataList: widget.datas,
+      customIndicators: widget.customIndicators,
+      maDayList: widget.maDayList,
+      n: widget.n,
+      k: widget.k,
+    );
+  }
+
+  @override
+  void didUpdateWidget(KChartWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.datas != widget.datas ||
+        oldWidget.customIndicators != widget.customIndicators ||
+        oldWidget.maDayList != widget.maDayList ||
+        oldWidget.n != widget.n ||
+        oldWidget.k != widget.k) {
+      _calculateIndicators();
+    }
   }
 
   @override

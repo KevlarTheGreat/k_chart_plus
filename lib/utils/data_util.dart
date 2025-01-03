@@ -1,11 +1,9 @@
 import 'dart:math';
 
+import '../entity/custom_indicator.dart';
 import '../entity/index.dart';
 
-
 class DataUtil {
-
-
   /// Calculates various technical indicators for a list of KLineEntity data.
   ///
   /// This method calculates the following indicators:
@@ -36,8 +34,15 @@ class DataUtil {
   /// DataUtil.calculate(dataList, [7, 14, 28], 21, 2.5);
   /// ```
   ///
-  static calculate(List<KLineEntity> dataList,
-      [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2]) {
+  static calculate_indicators({
+    required List<KLineEntity>? dataList,
+    required List<CustomIndicator>? customIndicators,
+    List<int> maDayList = const [5, 10, 20],
+    int n = 20,
+    int k = 2,
+  }) {
+    if (dataList == null || dataList.isEmpty) return;
+
     calcMA(dataList, maDayList);
     calcBOLL(dataList, n, k);
     calcVolumeMA(dataList);
@@ -46,6 +51,13 @@ class DataUtil {
     calcRSI(dataList);
     calcWR(dataList);
     calcCCI(dataList);
+
+    // Calculate custom indicators
+    if (customIndicators != null) {
+      for (var indicator in customIndicators) {
+        indicator.calculate(dataList);
+      }
+    }
   }
 
   static calcMA(List<KLineEntity> dataList, List<int> maDayList) {
@@ -71,7 +83,6 @@ class DataUtil {
       }
     }
   }
-
 
   /// Calculates the Bollinger Bands (BOLL) for a given list of KLineEntity data.
   ///
@@ -167,10 +178,10 @@ class DataUtil {
         ema12 = ema12 * 11 / 13 + closePrice * 2 / 13;
         // EMA(26) = Previous EMA(26) * 25/27 + Today's closing price * 2/27
         ema26 = ema26 * 25 / 27 + closePrice * 2 / 27;
-            }
-            // DIF = EMA(12) - EMA(26)
-            // Today's DEA = (Previous DEA * 8/10 + Today's DIF * 2/10)
-            // MACD histogram is (DIF - DEA) * 2
+      }
+      // DIF = EMA(12) - EMA(26)
+      // Today's DEA = (Previous DEA * 8/10 + Today's DIF * 2/10)
+      // MACD histogram is (DIF - DEA) * 2
       dif = ema12 - ema26;
       dea = dea * 8 / 10 + dif * 2 / 10;
       macd = (dif - dea) * 2;
