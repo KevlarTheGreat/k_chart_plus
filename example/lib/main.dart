@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -111,6 +113,11 @@ class _MyHomePageState extends State<MyHomePage> {
   // Custom indicators
   late List<CustomIndicator> customIndicators;
 
+  // Debug timer
+  double debugValue = 0.0;
+  double debugPhase = 0.0;
+  Timer? debugTimer;
+
   @override
   void initState() {
     super.initState();
@@ -147,6 +154,80 @@ class _MyHomePageState extends State<MyHomePage> {
               (item) => DepthEntity(item[0] as double, item[1] as double))
           .toList();
       initDepth(bids, asks);
+    });
+
+    // Start the debug timer
+    debugTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      //_pulseCandles();
+      _sineWaveCandles();
+    });
+  }
+
+  @override
+  void dispose() {
+    debugTimer?.cancel();
+    super.dispose();
+  }
+
+  void _sineWaveCandles() {
+    setState(() {
+      debugValue += 0.04;
+      if (debugValue > 1.0) {
+        debugValue = -1.0;
+      }
+
+      debugPhase += 0.07;
+      if (debugPhase > 2 * pi) {
+        debugPhase = 0;
+      }
+
+      if (datas != null) {
+        const amplitude = 60000.0; // Adjust the amplitude as needed
+        const mid = amplitude / 2;
+        const frequency = 0.1; // Adjust the frequency as needed
+        for (int i = 0; i < datas!.length; i++) {
+          final entity = datas![i];
+          entity.low = amplitude * sin(frequency * i - debugPhase) + mid;
+          //entity.low = amplitude * sin(frequency * i) + mid;
+          entity.open = entity.low;
+
+          // In phase, positive / negative
+          //entity.high = (entity.low + amplitude * 0.9 * debugValue) + mid;
+
+          // Slightly out of phase
+          //entity.high = amplitude * sin(frequency * i - debugPhase + 0.2 * pi) + mid;
+
+          // Slightly different frequency
+          entity.high =
+              amplitude * sin((frequency + 0.05) * i - debugPhase) + mid;
+
+          entity.close = entity.high;
+        }
+      }
+    });
+  }
+
+  void _pulseCandles() {
+    setState(() {
+      debugValue += 0.04;
+      if (debugValue > 1.0) {
+        debugValue = -1.0;
+      }
+      int scale = 1;
+      debugValue = debugValue * scale;
+
+      if (datas != null) {
+        for (var entity in datas!) {
+          // Calculate the midpoint between the high and low prices
+          final diff = (entity.high - entity.low) / 2;
+          // Calculate the midpoint between the high and low prices
+          final mid = entity.low + diff;
+          // Set the close price to the midpoint plus the debug value
+          entity.open = mid - diff * debugValue;
+          // Subtract 20% of the diff from the low price.
+          entity.close = mid + diff * debugValue;
+        }
+      }
     });
   }
 
