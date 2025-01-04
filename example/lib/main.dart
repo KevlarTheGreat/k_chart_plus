@@ -163,12 +163,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // So far, only needed to stop the debug timer
   @override
   void dispose() {
     debugTimer?.cancel();
     super.dispose();
   }
 
+  // Debug method to create a sine wave pattern on the candles
   void _sineWaveCandles() {
     setState(() {
       debugValue += 0.04;
@@ -207,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Debug method to pulse the candles
   void _pulseCandles() {
     setState(() {
       debugValue += 0.04;

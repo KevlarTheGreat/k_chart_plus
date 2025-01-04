@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import '../entity/custom_indicator.dart';
 import '../entity/index.dart';
 
 class DataUtil {
