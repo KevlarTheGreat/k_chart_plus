@@ -1,5 +1,6 @@
 import 'dart:async' show StreamSink;
 import 'package:flutter/material.dart';
+import 'package:k_chart_plus/k_chart_widget.dart';
 import 'package:k_chart_plus/utils/number_util.dart';
 import '../entity/info_window_entity.dart';
 import '../entity/k_line_entity.dart';
@@ -70,6 +71,7 @@ class ChartPainter extends BaseChartPainter {
     mainState,
     volHidden,
     secondaryStateLi,
+    customIndicators,
     bool isLine = false,
     this.hideGrid = false,
     this.showNowPrice = true,
@@ -87,6 +89,7 @@ class ChartPainter extends BaseChartPainter {
             mainState: mainState,
             volHidden: volHidden,
             secondaryStateLi: secondaryStateLi,
+            customIndicators: customIndicators,
             xFrontPadding: xFrontPadding,
             isLine: isLine) {
     selectPointPaint = Paint()
@@ -129,6 +132,44 @@ class ChartPainter extends BaseChartPainter {
           mChildPadding, fixedLength, this.chartStyle, this.chartColors);
     }
     mSecondaryRendererList.clear();
+
+    // Add the built-in secondary renderers to the list
+    for (int i = 0; i < secondaryStateLi.length; ++i) {
+      mSecondaryRendererList.add(SecondaryRenderer(
+        mSecondaryRectList[i].mRect,
+        mSecondaryRectList[i].mMaxValue,
+        mSecondaryRectList[i].mMinValue,
+        mChildPadding,
+        secondaryStateLi.elementAt(i),
+        //TODO: Remove chartType from SecondaryState
+        null, // null since it's not a custom indicator
+        null, // null since it's not a custom indicator
+        fixedLength,
+        chartStyle,
+        chartColors,
+      ));
+    }
+
+    // Add custom indicators to the secondary renderer list
+    if (customIndicators != null) {
+      for (int i = 0; i < customIndicators!.length; ++i) {
+        //CustomIndicator indicator = customIndicators![i];
+        mSecondaryRendererList.add(SecondaryRenderer(
+          mSecondaryRectList[i + secondaryStateLi.length].mRect,
+          mSecondaryRectList[i + secondaryStateLi.length].mMaxValue,
+          mSecondaryRectList[i + secondaryStateLi.length].mMinValue,
+          mChildPadding,
+          SecondaryState.RSI, // Doesn't matter for custom indicators
+          customIndicators![i].chartType,
+          customIndicators![i].name,
+          fixedLength,
+          chartStyle,
+          chartColors,
+        ));
+      }
+    }
+
+    /*  Old method
     for (int i = 0; i < mSecondaryRectList.length; ++i) {
       mSecondaryRendererList.add(SecondaryRenderer(
         mSecondaryRectList[i].mRect,
@@ -141,6 +182,7 @@ class ChartPainter extends BaseChartPainter {
         chartColors,
       ));
     }
+    */
   }
 
   @override

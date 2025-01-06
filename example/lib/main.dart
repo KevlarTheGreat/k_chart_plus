@@ -244,6 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
           entity.close = entity.high;
         }
+        // Update the list to trigger a rebuild
+        datasNotifier.value = List.from(datasNotifier.value);
       }
     });
   }
@@ -269,6 +271,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // Subtract 20% of the diff from the low price.
           entity.close = mid + diff * debugValue;
         }
+        // Update the list to trigger a rebuild
+        datasNotifier.value = List.from(datasNotifier.value);
       }
     });
   }

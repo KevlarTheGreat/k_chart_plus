@@ -145,6 +145,7 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void didUpdateWidget(KChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    print('KChartWidget: didUpdateWidget called');
     if (oldWidget.datas != widget.datas ||
         oldWidget.customIndicators != widget.customIndicators ||
         oldWidget.maDayList != widget.maDayList ||
@@ -169,6 +170,7 @@ class _KChartWidgetState extends State<KChartWidget>
 
   @override
   Widget build(BuildContext context) {
+    print('KChartWidget: build called');
     if (widget.datas != null && widget.datas!.isEmpty) {
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
@@ -197,6 +199,7 @@ class _KChartWidgetState extends State<KChartWidget>
       mainState: widget.mainState,
       volHidden: widget.volHidden,
       secondaryStateLi: widget.secondaryStateLi,
+      customIndicators: widget.customIndicators,
       isLine: widget.isLine,
       hideGrid: widget.hideGrid,
       showNowPrice: widget.showNowPrice,

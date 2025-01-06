@@ -3,8 +3,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart'
     show Color, TextStyle, Rect, Canvas, Size, CustomPainter;
+import 'package:k_chart_plus/entity/custom_indicator.dart';
 import 'package:k_chart_plus/utils/date_format_util.dart';
 import '../chart_style.dart' show ChartStyle;
+import '../entity/custom_indicator_entity.dart';
 import '../entity/k_line_entity.dart';
 import '../k_chart_widget.dart';
 import 'base_dimension.dart';
@@ -18,6 +20,7 @@ abstract class BaseChartPainter extends CustomPainter {
   MainState mainState;
 
   Set<SecondaryState> secondaryStateLi;
+  List<CustomIndicator>? customIndicators;
 
   bool volHidden;
   bool isTapShowInfoDialog;
@@ -73,6 +76,7 @@ abstract class BaseChartPainter extends CustomPainter {
     this.volHidden = false,
     this.isTapShowInfoDialog = false,
     this.secondaryStateLi = const <SecondaryState>{},
+    this.customIndicators = const <CustomIndicator>[],
     this.isLine = false,
   }) {
     mItemCount = datas?.length ?? 0;
@@ -184,7 +188,9 @@ abstract class BaseChartPainter extends CustomPainter {
 
     double mainHeight = mDisplayHeight;
     mainHeight -= volHeight;
-    mainHeight -= (secondaryHeight * secondaryStateLi.length);
+    mainHeight -= (secondaryHeight *
+        (secondaryStateLi.length + (customIndicators?.length ?? 0)));
+    //mainHeight -= (secondaryHeight * secondaryStateLi.length);
 
     mMainRect = Rect.fromLTRB(0, mTopPadding, mWidth, mTopPadding + mainHeight);
 
@@ -194,6 +200,7 @@ abstract class BaseChartPainter extends CustomPainter {
     }
 
     mSecondaryRectList.clear();
+    // Iterate through built-in secondary indicators, adding a rectangle for each
     for (int i = 0; i < secondaryStateLi.length; ++i) {
       mSecondaryRectList.add(RenderRect(
         Rect.fromLTRB(
@@ -206,9 +213,32 @@ abstract class BaseChartPainter extends CustomPainter {
                 secondaryHeight),
       ));
     }
+    // Iterate through custom indicators, adding a rectangle for each
+    if (customIndicators != null) {
+      for (int i = 0; i < customIndicators!.length; ++i) {
+        mSecondaryRectList.add(RenderRect(
+          Rect.fromLTRB(
+            0,
+            mMainRect.bottom +
+                volHeight +
+                (secondaryStateLi.length + i) * secondaryHeight +
+                mChildPadding,
+            mWidth,
+            mMainRect.bottom +
+                volHeight +
+                (secondaryStateLi.length + i) * secondaryHeight +
+                secondaryHeight,
+          ),
+        ));
+      }
+    }
   }
 
   /// calculate values
+  /// Iterates through the data to calculate the maximum and minimum values
+  /// for the data that is displayed on the screen, bound by the start and stop
+  /// For each data point, it calculates the maximum and minimum values for the
+  /// main chart, volume chart, and secondary charts.
   calculateValue() {
     if (datas == null) return;
     if (datas!.isEmpty) return;
@@ -283,59 +313,90 @@ abstract class BaseChartPainter extends CustomPainter {
         min(item.vol, min(item.MA5Volume ?? 0, item.MA10Volume ?? 0)));
   }
 
-  // compute maximum and minimum of secondary value
+  /// Compute maximum and minimum of secondary value data
+  /// [index]: index of mSecondaryRectList. The mSecondaryRectList is in the
+  /// order of the secondaryStateLi list, followed by the customIndicators list.
   getSecondaryMaxMinValue(int index, KLineEntity item) {
-    SecondaryState secondaryState = secondaryStateLi.elementAt(index);
-    switch (secondaryState) {
-      // MACD
-      case SecondaryState.MACD:
-        if (item.macd != null) {
-          mSecondaryRectList[index].mMaxValue = max(
-              mSecondaryRectList[index].mMaxValue,
-              max(item.macd!, max(item.dif!, item.dea!)));
-          mSecondaryRectList[index].mMinValue = min(
-              mSecondaryRectList[index].mMinValue,
-              min(item.macd!, min(item.dif!, item.dea!)));
-        }
-        break;
-      // KDJ
-      case SecondaryState.KDJ:
-        if (item.d != null) {
-          mSecondaryRectList[index].mMaxValue = max(
-              mSecondaryRectList[index].mMaxValue,
-              max(item.k!, max(item.d!, item.j!)));
-          mSecondaryRectList[index].mMinValue = min(
-              mSecondaryRectList[index].mMinValue,
-              min(item.k!, min(item.d!, item.j!)));
-        }
-        break;
-      // RSI
-      case SecondaryState.RSI:
-        if (item.rsi != null) {
+    if (index < secondaryStateLi.length) {
+      SecondaryState secondaryState = secondaryStateLi.elementAt(index);
+      switch (secondaryState) {
+        // MACD
+        case SecondaryState.MACD:
+          if (item.macd != null) {
+            mSecondaryRectList[index].mMaxValue = max(
+                mSecondaryRectList[index].mMaxValue,
+                max(item.macd!, max(item.dif!, item.dea!)));
+            mSecondaryRectList[index].mMinValue = min(
+                mSecondaryRectList[index].mMinValue,
+                min(item.macd!, min(item.dif!, item.dea!)));
+          }
+          break;
+        // KDJ
+        case SecondaryState.KDJ:
+          if (item.d != null) {
+            mSecondaryRectList[index].mMaxValue = max(
+                mSecondaryRectList[index].mMaxValue,
+                max(item.k!, max(item.d!, item.j!)));
+            mSecondaryRectList[index].mMinValue = min(
+                mSecondaryRectList[index].mMinValue,
+                min(item.k!, min(item.d!, item.j!)));
+          }
+          break;
+        // RSI
+        case SecondaryState.RSI:
+          if (item.rsi != null) {
+            mSecondaryRectList[index].mMaxValue =
+                max(mSecondaryRectList[index].mMaxValue, item.rsi!);
+            mSecondaryRectList[index].mMinValue =
+                min(mSecondaryRectList[index].mMinValue, item.rsi!);
+          }
+          break;
+        // WR
+        case SecondaryState.WR:
+          mSecondaryRectList[index].mMaxValue = 0;
+          mSecondaryRectList[index].mMinValue = -100;
+          break;
+        // CCI
+        case SecondaryState.CCI:
+          if (item.cci != null) {
+            mSecondaryRectList[index].mMaxValue =
+                max(mSecondaryRectList[index].mMaxValue, item.cci!);
+            mSecondaryRectList[index].mMinValue =
+                min(mSecondaryRectList[index].mMinValue, item.cci!);
+          }
+          break;
+        default:
+          mSecondaryRectList[index].mMaxValue = 0;
+          mSecondaryRectList[index].mMinValue = 0;
+          break;
+      }
+    } else {
+      // Handle custom indicators
+      int customIndex = index - secondaryStateLi.length;
+      if (customIndicators != null && customIndex < customIndicators!.length) {
+        CustomIndicator customIndicator = customIndicators![customIndex];
+        CustomIndicatorData? indicatorData =
+            item.indicatorDataMap[customIndicator.name];
+        if (indicatorData is LineIndicatorData) {
           mSecondaryRectList[index].mMaxValue =
-              max(mSecondaryRectList[index].mMaxValue, item.rsi!);
+              max(mSecondaryRectList[index].mMaxValue, indicatorData.value);
           mSecondaryRectList[index].mMinValue =
-              min(mSecondaryRectList[index].mMinValue, item.rsi!);
+              min(mSecondaryRectList[index].mMinValue, indicatorData.value);
         }
-        break;
-      // WR
-      case SecondaryState.WR:
-        mSecondaryRectList[index].mMaxValue = 0;
-        mSecondaryRectList[index].mMinValue = -100;
-        break;
-      // CCI
-      case SecondaryState.CCI:
-        if (item.cci != null) {
+        if (indicatorData is BarIndicatorData) {
           mSecondaryRectList[index].mMaxValue =
-              max(mSecondaryRectList[index].mMaxValue, item.cci!);
+              max(mSecondaryRectList[index].mMaxValue, indicatorData.high);
           mSecondaryRectList[index].mMinValue =
-              min(mSecondaryRectList[index].mMinValue, item.cci!);
+              min(mSecondaryRectList[index].mMinValue, indicatorData.low);
         }
-        break;
-      default:
-        mSecondaryRectList[index].mMaxValue = 0;
-        mSecondaryRectList[index].mMinValue = 0;
-        break;
+        if (indicatorData is CandleIndicatorData) {
+          mSecondaryRectList[index].mMaxValue =
+              max(mSecondaryRectList[index].mMaxValue, indicatorData.high);
+          mSecondaryRectList[index].mMinValue =
+              min(mSecondaryRectList[index].mMinValue, indicatorData.low);
+        }
+        // Add cases for other CustomIndicatorData types as needed
+      }
     }
   }
 
