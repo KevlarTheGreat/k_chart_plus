@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Debug timer
   double debugValue = 0.0;
   double debugPhase = 0.0;
-  Timer? debugTimer;
+  Timer? _debugTimer;
 
   // Periodic update timer for fake data
   bool _updatesEnabled = false;
@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
         initDepth(bids, asks);
 
         // Start the debug timer
-        debugTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+        _debugTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
           if (_sineEnabled) {
             _sineWaveCandles();
           } else if (_pulseEnabled) {
@@ -204,7 +204,8 @@ class _MyHomePageState extends State<MyHomePage> {
   // So far, only needed to stop the debug timer
   @override
   void dispose() {
-    debugTimer?.cancel();
+    _debugTimer?.cancel();
+    _dataGenTimer?.cancel();
     super.dispose();
   }
 
@@ -384,7 +385,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
             ),
-            const SizedBox(width: 10), // Add some spacing between the buttons
+            const SizedBox(width: 10),
+            // Add a vertical divider between the buttons
+            Container(
+              width: 2,
+              height: 25,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+            const SizedBox(width: 10),
             _buildButton(
               context: context,
               title: _updatesEnabled ? 'Stop DataGen' : 'Start DataGen',
@@ -428,6 +436,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 });
               },
+            ),
+            const SizedBox(width: 10),
+            // Add a vertical divider between the buttons
+            Container(
+              width: 2,
+              height: 25,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
           ],
         ),

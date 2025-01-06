@@ -1,4 +1,3 @@
-import 'custom_indicator_entity.dart';
 import 'k_line_entity.dart';
 
 /// This class is used to define custom indicators
