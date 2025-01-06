@@ -1,4 +1,4 @@
 mixin RSIEntity {
-  /// RSI值
+  /// RSI value
   double? rsi;
 }

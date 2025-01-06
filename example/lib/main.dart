@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:k_chart_plus/k_chart_plus.dart';
 
-/// This file is part of a Flutter application and is responsible for building a significant portion of the user interface (UI).
 ///
 /// High-level overview:
 ///
@@ -99,7 +98,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<KLineEntity>? datas;
+  //List<KLineEntity>? datas;
+  ValueNotifier<List<KLineEntity>> datasNotifier =
+      ValueNotifier<List<KLineEntity>>([]);
   bool showLoading = true;
   bool _volHidden = false;
   MainState _mainState = MainState.MA;
@@ -111,23 +112,80 @@ class _MyHomePageState extends State<MyHomePage> {
   ChartColors chartColors = ChartColors();
 
   // Custom indicators
-  late List<CustomIndicator> customIndicators;
+  late List<CustomIndicator> myCustomIndicators;
 
   // Debug timer
   double debugValue = 0.0;
   double debugPhase = 0.0;
   Timer? debugTimer;
 
+  // Periodic update timer for fake data
+  bool _updatesEnabled = false;
+  bool _sineEnabled = false;
+  bool _pulseEnabled = false;
+  Timer? _dataGenTimer;
+
   @override
   void initState() {
     super.initState();
 
-    // Define the custom indicator/s
-    customIndicators = [
+    // Initialize custom indicators with an empty list
+    myCustomIndicators = [];
+
+    // Fetch initial data and initialize custom indicators
+    _getData('1day').then((data) {
+      datasNotifier.value = data;
+
+      // Initialize custom indicators
+      _initCustomIndicator();
+
+      rootBundle.loadString('assets/depth.json').then((result) {
+        final parseJson = json.decode(result);
+        final tick = parseJson['tick'] as Map<String, dynamic>;
+        final List<DepthEntity> bids = (tick['bids'] as List<dynamic>)
+            .map<DepthEntity>(
+                (item) => DepthEntity(item[0] as double, item[1] as double))
+            .toList();
+        final List<DepthEntity> asks = (tick['asks'] as List<dynamic>)
+            .map<DepthEntity>(
+                (item) => DepthEntity(item[0] as double, item[1] as double))
+            .toList();
+        initDepth(bids, asks);
+
+        // Start the debug timer
+        debugTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+          if (_sineEnabled) {
+            _sineWaveCandles();
+          } else if (_pulseEnabled) {
+            _pulseCandles();
+          }
+        });
+
+        // Start simulating periodic random updates
+        _dataGen();
+        // Set showLoading to false after data is loaded
+        setState(() {
+          showLoading = false;
+        });
+      });
+    });
+  }
+
+  _initCustomIndicator() {
+    myCustomIndicators = [
       CustomIndicator(
         name: 'Half Close Price',
         chartType: ChartType.line,
+        data: datasNotifier.value, // datas must be initialized before this
         calculate: (data) {
+          for (var entity in data) {
+            // Calculate the custom indicator data
+            final customValue = entity.close * 0.5;
+            // Modify the existing zero-initialized data
+            (entity.indicatorDataMap['Half Close Price'] as LineIndicatorData)
+                .value = customValue;
+          }
+          /*
           for (var entity in data) {
             // Calculate the difference between the high and low prices
             final diff = (entity.high - entity.low) / 2;
@@ -136,31 +194,11 @@ class _MyHomePageState extends State<MyHomePage> {
             // Subtract 20% of the diff from the low price.
             entity.low = entity.low - diff * 2;
           }
+          */
         },
       ),
       // Add more custom indicators here
     ];
-
-    getData('1day');
-    rootBundle.loadString('assets/depth.json').then((result) {
-      final parseJson = json.decode(result);
-      final tick = parseJson['tick'] as Map<String, dynamic>;
-      final List<DepthEntity> bids = (tick['bids'] as List<dynamic>)
-          .map<DepthEntity>(
-              (item) => DepthEntity(item[0] as double, item[1] as double))
-          .toList();
-      final List<DepthEntity> asks = (tick['asks'] as List<dynamic>)
-          .map<DepthEntity>(
-              (item) => DepthEntity(item[0] as double, item[1] as double))
-          .toList();
-      initDepth(bids, asks);
-    });
-
-    // Start the debug timer
-    debugTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      //_pulseCandles();
-      _sineWaveCandles();
-    });
   }
 
   // So far, only needed to stop the debug timer
@@ -183,12 +221,12 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPhase = 0;
       }
 
-      if (datas != null) {
+      if (datasNotifier.value.isNotEmpty) {
         const amplitude = 60000.0; // Adjust the amplitude as needed
         const mid = amplitude / 2;
         const frequency = 0.1; // Adjust the frequency as needed
-        for (int i = 0; i < datas!.length; i++) {
-          final entity = datas![i];
+        for (int i = 0; i < datasNotifier.value.length; i++) {
+          final entity = datasNotifier.value[i];
           entity.low = amplitude * sin(frequency * i - debugPhase) + mid;
           //entity.low = amplitude * sin(frequency * i) + mid;
           entity.open = entity.low;
@@ -219,8 +257,8 @@ class _MyHomePageState extends State<MyHomePage> {
       int scale = 1;
       debugValue = debugValue * scale;
 
-      if (datas != null) {
-        for (var entity in datas!) {
+      if (datasNotifier.value.isNotEmpty) {
+        for (var entity in datasNotifier.value) {
           // Calculate the midpoint between the high and low prices
           final diff = (entity.high - entity.low) / 2;
           // Calculate the midpoint between the high and low prices
@@ -259,54 +297,59 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          const SafeArea(bottom: false, child: SizedBox(height: 10)),
-          Stack(children: <Widget>[
-            KChartWidget(
-              datas: datas,
-              chartStyle: chartStyle,
-              chartColors: chartColors,
-              mBaseHeight: 360,
-              isTrendLine: false,
-              mainState: _mainState,
-              volHidden: _volHidden,
-              secondaryStateLi: _secondaryStateLi.toSet(),
-              fixedLength: 2,
-              timeFormat: TimeFormat.YEAR_MONTH_DAY,
-              customIndicators: customIndicators,
-              maDayList: const [5, 10, 20],
-              n: 20,
-              k: 2,
-            ),
-            if (showLoading)
-              Container(
-                width: double.infinity,
-                height: 450,
-                alignment: Alignment.center,
-                child: const CircularProgressIndicator(),
-              ),
-          ]),
-          _buildTitle(context, 'VOL'),
-          buildVolButton(),
-          _buildTitle(context, 'Main State'),
-          buildMainButtons(),
-          _buildTitle(context, 'Secondary State'),
-          buildSecondButtons(),
-          const SizedBox(height: 30),
-          if (_bids != null && _asks != null)
-            Container(
-              color: Colors.white,
-              height: 320,
-              width: double.infinity,
-              child: DepthChart(
-                _bids!,
-                _asks!,
-                chartColors,
-              ),
-            )
-        ],
+      body: ValueListenableBuilder<List<KLineEntity>>(
+        valueListenable: datasNotifier,
+        builder: (context, datas, child) {
+          return ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              const SafeArea(bottom: false, child: SizedBox(height: 10)),
+              Stack(children: <Widget>[
+                KChartWidget(
+                  datas: datas,
+                  chartStyle: ChartStyle(),
+                  chartColors: ChartColors(),
+                  mBaseHeight: 360,
+                  isTrendLine: false,
+                  mainState: _mainState,
+                  volHidden: _volHidden,
+                  secondaryStateLi: _secondaryStateLi.toSet(),
+                  fixedLength: 2,
+                  timeFormat: TimeFormat.YEAR_MONTH_DAY,
+                  customIndicators: myCustomIndicators,
+                  maDayList: const [5, 10, 20],
+                  n: 20,
+                  k: 2,
+                ),
+                if (showLoading)
+                  Container(
+                    width: double.infinity,
+                    height: 450,
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(),
+                  ),
+              ]),
+              _buildTitle(context, 'Settings'),
+              _buildSettingsButtons(),
+              _buildTitle(context, 'Main State'),
+              _buildMainButtons(),
+              _buildTitle(context, 'Secondary State'),
+              _buildSecondButtons(),
+              const SizedBox(height: 30),
+              if (_bids != null && _asks != null)
+                Container(
+                  color: Colors.white,
+                  height: 320,
+                  width: double.infinity,
+                  child: DepthChart(
+                    _bids!,
+                    _asks!,
+                    ChartColors(),
+                  ),
+                ) // Other UI elements...
+            ],
+          );
+        },
       ),
     );
   }
@@ -324,24 +367,75 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildVolButton() {
+  Widget _buildSettingsButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: _buildButton(
-            context: context,
-            title: 'VOL',
-            isActive: !_volHidden,
-            onPress: () {
-              _volHidden = !_volHidden;
-              setState(() {});
-            }),
+        child: Row(
+          children: [
+            _buildButton(
+              context: context,
+              title: 'VOL',
+              isActive: !_volHidden,
+              onPress: () {
+                setState(() {
+                  _volHidden = !_volHidden;
+                });
+              },
+            ),
+            const SizedBox(width: 10), // Add some spacing between the buttons
+            _buildButton(
+              context: context,
+              title: _updatesEnabled ? 'Stop DataGen' : 'Start DataGen',
+              isActive: _updatesEnabled,
+              onPress: () {
+                setState(() {
+                  _updatesEnabled = !_updatesEnabled;
+                  if (_updatesEnabled) {
+                    _sineEnabled = false;
+                    _pulseEnabled = false;
+                  }
+                });
+              },
+            ),
+            const SizedBox(width: 10), // Add some spacing between the buttons
+            _buildButton(
+              context: context,
+              title: _sineEnabled ? 'Stop Sines' : 'Start Sines',
+              isActive: _sineEnabled,
+              onPress: () {
+                setState(() {
+                  _sineEnabled = !_sineEnabled;
+                  if (_sineEnabled) {
+                    _updatesEnabled = false;
+                    _pulseEnabled = false;
+                  }
+                });
+              },
+            ),
+            const SizedBox(width: 10), // Add some spacing between the buttons
+            _buildButton(
+              context: context,
+              title: _pulseEnabled ? 'Stop Pulses' : 'Start Pulses',
+              isActive: _pulseEnabled,
+              onPress: () {
+                setState(() {
+                  _pulseEnabled = !_pulseEnabled;
+                  if (_pulseEnabled) {
+                    _updatesEnabled = false;
+                    _sineEnabled = false;
+                  }
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget buildMainButtons() {
+  Widget _buildMainButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
@@ -360,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildSecondButtons() {
+  Widget _buildSecondButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
@@ -427,6 +521,44 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  /// Simulate periodic updates to the data
+  void _dataGen() {
+    _dataGenTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_updatesEnabled) {
+        if (datasNotifier.value.isNotEmpty) {
+          final lastEntity = datasNotifier.value.last;
+          final newOpen = lastEntity.open +
+              (Random().nextDouble() - 0.5) * lastEntity.close * 0.1;
+          final newClose =
+              newOpen + (Random().nextDouble() - 0.5) * newOpen * 0.2;
+          final newEntity = KLineEntity.fromCustom(
+            open: max(0, newOpen),
+            close: max(0, newClose),
+            // Set high to which ever is higher, the open or close price
+            high: max(newOpen, newClose) + Random().nextDouble() * 1000,
+            low: min(newOpen, newClose) - Random().nextDouble() * 1000,
+            vol: (newOpen - newClose).abs() * 100000,
+            time: lastEntity.time! + const Duration(days: 1).inMilliseconds,
+            // Copy the custom indicator types from the last entity
+            customIndicatorTypes: lastEntity.indicatorDataMap.map(
+              (key, value) => MapEntry(key, value.chartType),
+            ),
+          );
+          datasNotifier.value = List.from(datasNotifier.value)..add(newEntity);
+        }
+      }
+    });
+  }
+
+  Future<List<KLineEntity>> _getData(String period) async {
+    // Fetch data and populate the datas list
+    final response = await rootBundle.loadString('assets/chartData.json');
+    final Map<String, dynamic> jsonData = json.decode(response);
+    final List<dynamic> dataList = jsonData['data']; // Extract the 'data' array
+    return dataList.reversed.map((item) => KLineEntity.fromJson(item)).toList();
+  }
+
+  /* // Old code for fetching data from the internet
   void getData(String period) {
     final Future<String> future = getChartDataFromInternet(period);
     //final Future<String> future = getChatDataFromJson();
@@ -455,11 +587,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<String> getChartDataFromJson() async {
     return rootBundle.loadString('assets/chartData.json');
   }
+  */
 
-  void solveChartData(String result) {
+  void _solveChartData(String result) {
     final Map parseJson = json.decode(result) as Map<dynamic, dynamic>;
     final list = parseJson['data'] as List<dynamic>;
-    datas = list
+    datasNotifier.value = list
         .map((item) => KLineEntity.fromJson(item as Map<String, dynamic>))
         .toList()
         .reversed

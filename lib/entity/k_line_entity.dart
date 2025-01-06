@@ -1,4 +1,5 @@
 import '../entity/k_entity.dart';
+import 'custom_indicator.dart';
 
 class KLineEntity extends KEntity {
   late double open;
@@ -21,7 +22,13 @@ class KLineEntity extends KEntity {
     required this.high,
     required this.low,
     required this.vol,
-  });
+    Map<String, ChartType>? customIndicatorTypes,
+  }) {
+    // Initialize custom indicator data if provided
+    if (customIndicatorTypes != null) {
+      addCustomIndicators(customIndicatorTypes: customIndicatorTypes);
+    }
+  }
 
   KLineEntity.fromJson(Map<String, dynamic> json) {
     open = json['open']?.toDouble() ?? 0;
@@ -31,7 +38,7 @@ class KLineEntity extends KEntity {
     vol = json['vol']?.toDouble() ?? 0;
     amount = json['amount']?.toDouble();
     int? tempTime = json['time']?.toInt();
-    //兼容火币数据
+    // Compatible with Huobi data
     if (tempTime == null) {
       tempTime = json['id']?.toInt() ?? 0;
       tempTime = tempTime! * 1000;

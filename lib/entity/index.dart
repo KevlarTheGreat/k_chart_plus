@@ -10,3 +10,4 @@ export 'rsi_entity.dart';
 export 'rw_entity.dart';
 export 'volume_entity.dart';
 export 'custom_indicator.dart'; //custom indicator
+export 'custom_indicator_entity.dart'; //custom indicator

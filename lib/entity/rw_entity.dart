@@ -1,4 +1,4 @@
 mixin WREntity {
-  /// %R值
+  /// %R value
   double? r;
 }

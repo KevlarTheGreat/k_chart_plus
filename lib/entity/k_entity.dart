@@ -1,4 +1,5 @@
 import 'candle_entity.dart';
+import 'custom_indicator_entity.dart';
 import 'kdj_entity.dart';
 import 'macd_entity.dart';
 import 'rsi_entity.dart';
@@ -14,4 +15,5 @@ class KEntity
         RSIEntity,
         WREntity,
         CCIEntity,
-        MACDEntity {}
+        MACDEntity,
+        CustomIndicatorEntity {}
