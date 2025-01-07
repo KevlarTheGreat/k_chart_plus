@@ -384,10 +384,10 @@ abstract class BaseChartPainter extends CustomPainter {
               min(mSecondaryRectList[index].mMinValue, indicatorData.value);
         }
         if (indicatorData is BarIndicatorData) {
-          mSecondaryRectList[index].mMaxValue =
-              max(mSecondaryRectList[index].mMaxValue, indicatorData.high);
-          mSecondaryRectList[index].mMinValue =
-              min(mSecondaryRectList[index].mMinValue, indicatorData.low);
+          mSecondaryRectList[index].mMaxValue = max(
+              mSecondaryRectList[index].mMaxValue,
+              max(indicatorData.primary, indicatorData.secondary));
+          mSecondaryRectList[index].mMinValue = 0;
         }
         if (indicatorData is CandleIndicatorData) {
           mSecondaryRectList[index].mMaxValue =

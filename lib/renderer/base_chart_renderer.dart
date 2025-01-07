@@ -45,6 +45,10 @@ abstract class BaseChartRenderer<T> {
     */
   }
 
+  /// Gets the global Y coordinate of the given data value.
+  /// The data can be positive or negative, but is bound by
+  /// the [minValue] and [maxValue].
+  /// Remember that Y coordinates increase as you go down the screen.
   double getY(double y) => (maxValue - y) * scaleY + chartRect.top;
 
   String format(double? n) {

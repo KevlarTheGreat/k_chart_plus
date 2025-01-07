@@ -141,8 +141,6 @@ class ChartPainter extends BaseChartPainter {
         mSecondaryRectList[i].mMinValue,
         mChildPadding,
         secondaryStateLi.elementAt(i),
-        //TODO: Remove chartType from SecondaryState
-        null, // null since it's not a custom indicator
         null, // null since it's not a custom indicator
         fixedLength,
         chartStyle,
@@ -153,14 +151,12 @@ class ChartPainter extends BaseChartPainter {
     // Add custom indicators to the secondary renderer list
     if (customIndicators != null) {
       for (int i = 0; i < customIndicators!.length; ++i) {
-        //CustomIndicator indicator = customIndicators![i];
         mSecondaryRendererList.add(SecondaryRenderer(
           mSecondaryRectList[i + secondaryStateLi.length].mRect,
           mSecondaryRectList[i + secondaryStateLi.length].mMaxValue,
           mSecondaryRectList[i + secondaryStateLi.length].mMinValue,
           mChildPadding,
           SecondaryState.RSI, // Doesn't matter for custom indicators
-          customIndicators![i].chartType,
           customIndicators![i].name,
           fixedLength,
           chartStyle,

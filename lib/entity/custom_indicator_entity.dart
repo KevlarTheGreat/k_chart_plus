@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'custom_indicator.dart';
 
 mixin CustomIndicatorEntity {
@@ -35,8 +37,11 @@ abstract class CustomIndicatorData {
 
 class LineIndicatorData extends CustomIndicatorData {
   double value;
+  Color color;
 
-  LineIndicatorData({this.value = 0.0}) : super(ChartType.line);
+  LineIndicatorData(
+      {this.value = 0.0, this.color = const Color.fromARGB(255, 155, 5, 117)})
+      : super(ChartType.line);
 }
 
 class CandleIndicatorData extends CustomIndicatorData {
@@ -54,11 +59,15 @@ class CandleIndicatorData extends CustomIndicatorData {
 }
 
 class BarIndicatorData extends CustomIndicatorData {
-  double high;
-  double low;
+  double primary;
+  double secondary;
+  Color primaryColor;
+  Color secondaryColor;
 
   BarIndicatorData({
-    this.high = 0.0,
-    this.low = 0.0,
+    this.primary = -1.0, // Negative value to indicate no data
+    this.secondary = -1.0, // Negative value to indicate no data
+    this.primaryColor = const Color(0xff4c5c74),
+    this.secondaryColor = const Color.fromARGB(255, 93, 16, 129),
   }) : super(ChartType.bar);
 }

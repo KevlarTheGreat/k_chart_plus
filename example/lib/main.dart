@@ -177,12 +177,12 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Half Close Price',
         chartType: ChartType.line,
         data: datasNotifier.value, // datas must be initialized before this
-        calculate: (data) {
-          for (var entity in data) {
+        calculate: (dataList) {
+          for (var data in dataList) {
             // Calculate the custom indicator data
-            final customValue = entity.close * 0.5;
+            final customValue = data.close * 0.5;
             // Modify the existing zero-initialized data
-            (entity.indicatorDataMap['Half Close Price'] as LineIndicatorData)
+            (data.indicatorDataMap['Half Close Price'] as LineIndicatorData)
                 .value = customValue;
           }
           /*
@@ -197,11 +197,37 @@ class _MyHomePageState extends State<MyHomePage> {
           */
         },
       ),
+      CustomIndicator(
+        name: 'Close Price',
+        chartType: ChartType.bar,
+        data: datasNotifier.value, // datas must be initialized before this
+        calculate: (dataList) {
+          double minValue = double.infinity;
+          // Find the minimum close price
+          for (var data in dataList) {
+            if (data.close < minValue) {
+              minValue = data.close;
+            }
+          }
+
+          for (var data in dataList) {
+            // Calculate the custom indicator data
+            // Set the minimum close price as the base value
+            final customValue = data.close - minValue;
+            // Modify the existing initialized data
+            final barData =
+                data.indicatorDataMap['Close Price'] as BarIndicatorData;
+            barData.primary = customValue;
+            barData.secondary =
+                customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
+          }
+        },
+      ),
       // Add more custom indicators here
     ];
   }
 
-  // So far, only needed to stop the debug timer
+  // So far, only needed to stop the debug timers
   @override
   void dispose() {
     _debugTimer?.cancel();
@@ -209,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  // Debug method to create a sine wave pattern on the candles
+  // Test function to create a sine wave pattern on the candles
   void _sineWaveCandles() {
     setState(() {
       debugValue += 0.04;
@@ -250,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // Debug method to pulse the candles
+  // Test function to pulse the candles
   void _pulseCandles() {
     setState(() {
       debugValue += 0.04;

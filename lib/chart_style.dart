@@ -178,6 +178,9 @@ class ChartStyle {
   ///macd column width
   double macdWidth = 1.2;
 
+  ///Bar column width
+  double barWidth = 4;
+
   ///vertical-horizontal cross line width
   double vCrossWidth = 8.5;
   double hCrossWidth = 0.5;

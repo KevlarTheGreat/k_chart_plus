@@ -7,9 +7,8 @@ import 'base_chart_renderer.dart';
 
 class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
   late double mMACDWidth;
+  late double barWidth;
   SecondaryState state;
-  //TODO: Remove chartType from SecondaryRenderer
-  ChartType? chartType; // ChartType if custom indicator, otherwise null
   String? indicatorName; // Custom indicator name, otherwise null
   final ChartStyle chartStyle;
   final ChartColors chartColors;
@@ -20,10 +19,6 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
       double minValue,
       double topPadding,
       this.state,
-
-      //TODO: Remove chartType from SecondaryRenderer
-      /// ChartType if custom indicator, otherwise null
-      this.chartType,
 
       /// The name of the custom indicator, otherwise null
       this.indicatorName,
@@ -39,12 +34,13 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           gridColor: chartColors.gridColor,
         ) {
     mMACDWidth = this.chartStyle.macdWidth;
+    barWidth = this.chartStyle.barWidth;
   }
 
   @override
   void drawChart(KLineEntity lastPoint, KLineEntity curPoint, double lastX,
       double curX, Size size, Canvas canvas) {
-    if (chartType == null) {
+    if (indicatorName == null) {
       switch (state) {
         case SecondaryState.MACD:
           drawMACD(curPoint, canvas, curX, lastPoint, lastX);
@@ -73,26 +69,32 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           break;
       }
     } else {
-      switch (chartType) {
+      CustomIndicatorData curIndicator =
+          curPoint.indicatorDataMap[indicatorName]!;
+      CustomIndicatorData lastIndicator =
+          lastPoint.indicatorDataMap[indicatorName]!;
+      switch (curIndicator.chartType) {
         case ChartType.line:
-          final lastIndicatorData =
-              lastPoint.indicatorDataMap[indicatorName] as LineIndicatorData?;
-          final curIndicatorData =
-              curPoint.indicatorDataMap[indicatorName] as LineIndicatorData?;
-          if (lastIndicatorData != null && curIndicatorData != null) {
+          final lastLineData = lastIndicator as LineIndicatorData?;
+          final curLineData = curIndicator as LineIndicatorData?;
+          if (lastLineData != null && curLineData != null) {
             drawLine(
-              lastIndicatorData.value,
-              curIndicatorData.value,
+              lastLineData.value,
+              curLineData.value,
               canvas,
               lastX,
               curX,
-              this.chartColors.rsiColor,
+              curLineData.color,
             );
           }
           break;
         case ChartType.candlestick:
           break;
         case ChartType.bar:
+          drawBarChart(
+              curPoint.indicatorDataMap[indicatorName] as BarIndicatorData,
+              canvas,
+              curX);
           break;
         default:
           break;
@@ -133,10 +135,40 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
     }
   }
 
+  /// Draw Bar Chart
+  /// The drawBarChart function is responsible for drawing the
+  /// bar chart on a canvas. Only positive values are drawn.  The larger of the
+  /// two values is drawn first and the smaller values is drawn over the
+  /// top of the larger value.
+  void drawBarChart(BarIndicatorData curPoint, Canvas canvas, double curX) {
+    final dataPrimary = curPoint.primary;
+    final dataSecondary = curPoint.secondary;
+    final primaryColor = curPoint.primaryColor;
+    final secondaryColor = curPoint.secondaryColor;
+    double primaryY = getY(dataPrimary);
+    double secondaryY = getY(dataSecondary);
+    double zeroY = getY(0);
+    double spacing = 0.3;
+
+    // Draw the primary and secondary bars side by side with the primary on the left
+    if (dataPrimary > 0) {
+      canvas.drawRect(
+          Rect.fromLTRB(
+              curX - barWidth - spacing, primaryY, curX - spacing, zeroY),
+          chartPaint..color = primaryColor);
+    }
+    if (dataSecondary > 0) {
+      canvas.drawRect(
+          Rect.fromLTRB(
+              curX + spacing, secondaryY, curX + barWidth + spacing, zeroY),
+          chartPaint..color = secondaryColor);
+    }
+  }
+
   @override
   void drawText(Canvas canvas, KLineEntity data, double x) {
     List<TextSpan>? children;
-    if (chartType == null) {
+    if (indicatorName == null) {
       switch (state) {
         case SecondaryState.MACD:
           children = [
@@ -201,21 +233,39 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           break;
       }
     } else {
-      switch (chartType) {
+      CustomIndicatorData curIndicator = data.indicatorDataMap[indicatorName]!;
+      switch (curIndicator.chartType) {
         case ChartType.line:
-          final indicatorData =
-              data.indicatorDataMap[indicatorName] as LineIndicatorData?;
+          final indicatorData = curIndicator as LineIndicatorData?;
           if (indicatorData != null) {
             children = [
               TextSpan(
                   text: "$indicatorName: ${format(indicatorData.value)}    ",
-                  style: getTextStyle(this.chartColors.rsiColor)),
+                  style: getTextStyle(indicatorData.color)),
             ];
           }
           break;
         case ChartType.candlestick:
           break;
         case ChartType.bar:
+          final indicatorData = curIndicator as BarIndicatorData?;
+          if (indicatorData != null) {
+            children = [
+              TextSpan(
+                  text: "$indicatorName: ",
+                  style: getTextStyle(this.chartColors.rsiColor)),
+              TextSpan(
+                  text: indicatorData.primary < 0
+                      ? ""
+                      : "P:${format(indicatorData.primary)}    ",
+                  style: getTextStyle(indicatorData.primaryColor)),
+              TextSpan(
+                  text: indicatorData.secondary < 0
+                      ? ""
+                      : "S:${format(indicatorData.secondary)}",
+                  style: getTextStyle(indicatorData.secondaryColor)),
+            ];
+          }
           break;
         default:
           break;
