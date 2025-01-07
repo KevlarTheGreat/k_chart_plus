@@ -24,6 +24,9 @@ mixin CustomIndicatorEntity {
         case ChartType.bar:
           indicatorDataMap[name] = BarIndicatorData();
           break;
+        case ChartType.macd:
+          indicatorDataMap[name] = MACDIndicatorData();
+          break;
       }
     });
   }
@@ -70,4 +73,21 @@ class BarIndicatorData extends CustomIndicatorData {
     this.primaryColor = const Color(0xff4c5c74),
     this.secondaryColor = const Color.fromARGB(255, 93, 16, 129),
   }) : super(ChartType.bar);
+}
+
+class MACDIndicatorData extends CustomIndicatorData {
+  double dif;
+  double dea;
+  double macd;
+
+  Color primaryColor;
+  Color secondaryColor;
+
+  MACDIndicatorData({
+    this.dif = 0.0,
+    this.dea = 0.0,
+    this.macd = 0.0,
+    this.primaryColor = const Color(0xff4c5c74),
+    this.secondaryColor = const Color.fromARGB(255, 93, 16, 129),
+  }) : super(ChartType.macd);
 }

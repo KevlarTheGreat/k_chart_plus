@@ -2,62 +2,6 @@ import 'dart:math';
 import '../entity/index.dart';
 
 class DataUtil {
-  /// Calculates various technical indicators for a list of KLineEntity data.
-  ///
-  /// This method calculates the following indicators:
-  /// - Moving Average (MA)
-  /// - Bollinger Bands (BOLL)
-  /// - Volume Moving Average (Volume MA)
-  /// - Stochastic Oscillator (KDJ)
-  /// - Moving Average Convergence Divergence (MACD)
-  /// - Relative Strength Index (RSI)
-  /// - Williams %R (WR)
-  /// - Commodity Channel Index (CCI)
-  ///
-  /// The default parameters for the calculations are:
-  /// - [dataList] is the list of KLineEntity objects for which the indicators will be calculated.
-  /// - [maDayList]: A list of integers representing the periods for the moving averages. Default is [5, 10, 20].
-  /// - [n]: An integer representing the period for the Bollinger Bands calculation. Default is 20.
-  /// - [k]: A double representing the number of standard deviations for the Bollinger Bands calculation. Default is 2.
-  ///
-  /// Usage:
-  /// ```dart
-  /// List<KLineEntity> dataList = // your data here;
-  /// DataUtil.calculate(dataList);
-  /// ```
-  ///
-  /// You can also provide custom parameters:
-  /// ```dart
-  /// List<KLineEntity> dataList = // your data here;
-  /// DataUtil.calculate(dataList, [7, 14, 28], 21, 2.5);
-  /// ```
-  ///
-  static calculate_indicators({
-    required List<KLineEntity>? dataList,
-    required List<CustomIndicator>? customIndicators,
-    List<int> maDayList = const [5, 10, 20],
-    int n = 20,
-    int k = 2,
-  }) {
-    if (dataList == null || dataList.isEmpty) return;
-
-    calcMA(dataList, maDayList);
-    calcBOLL(dataList, n, k);
-    calcVolumeMA(dataList);
-    calcKDJ(dataList);
-    calcMACD(dataList);
-    calcRSI(dataList);
-    calcWR(dataList);
-    calcCCI(dataList);
-
-    // Calculate custom indicators
-    if (customIndicators != null) {
-      for (var indicator in customIndicators) {
-        indicator.calculate(dataList);
-      }
-    }
-  }
-
   static calcMA(List<KLineEntity> dataList, List<int> maDayList) {
     List<double> ma = List<double>.filled(maDayList.length, 0);
 
@@ -158,7 +102,7 @@ class DataUtil {
     }
   }
 
-  static void calcMACD(List<KLineEntity> dataList) {
+  static void calcMACD(List<KLineEntity> dataList, {String? name = null}) {
     double ema12 = 0;
     double ema26 = 0;
     double dif = 0;
@@ -183,9 +127,22 @@ class DataUtil {
       dif = ema12 - ema26;
       dea = dea * 8 / 10 + dif * 2 / 10;
       macd = (dif - dea) * 2;
-      entity.dif = dif;
-      entity.dea = dea;
-      entity.macd = macd;
+
+      if (name != null) {
+        // Write the results to the custom indicator
+        // Note: The custom indicator entity is already initialized with
+        // the right type of CustomIndicatorData based on the ChartType
+        MACDIndicatorData entityData =
+            entity.indicatorDataMap[name] as MACDIndicatorData;
+        entityData.dif = dif;
+        entityData.dea = dea;
+        entityData.macd = macd;
+      } else {
+        // Write the results to the built-in indicator entity
+        entity.dif = dif;
+        entity.dea = dea;
+        entity.macd = macd;
+      }
     }
   }
 

@@ -129,11 +129,7 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void initState() {
     super.initState();
-    _calculateIndicators();
-  }
-
-  void _calculateIndicators() {
-    DataUtil.calculate_indicators(
+    _calculate_indicators(
       dataList: widget.datas,
       customIndicators: widget.customIndicators,
       maDayList: widget.maDayList,
@@ -142,16 +138,78 @@ class _KChartWidgetState extends State<KChartWidget>
     );
   }
 
+  /// Calculates various technical indicators for a list of KLineEntity data.
+  ///
+  /// This method calculates the following indicators:
+  /// - Moving Average (MA)
+  /// - Bollinger Bands (BOLL)
+  /// - Volume Moving Average (Volume MA)
+  /// - Stochastic Oscillator (KDJ)
+  /// - Moving Average Convergence Divergence (MACD)
+  /// - Relative Strength Index (RSI)
+  /// - Williams %R (WR)
+  /// - Commodity Channel Index (CCI)
+  ///
+  /// The default parameters for the calculations are:
+  /// - [dataList] is the list of KLineEntity objects for which the indicators will be calculated.
+  /// - [maDayList]: A list of integers representing the periods for the moving averages. Default is [5, 10, 20].
+  /// - [n]: An integer representing the period for the Bollinger Bands calculation. Default is 20.
+  /// - [k]: A double representing the number of standard deviations for the Bollinger Bands calculation. Default is 2.
+  ///
+  /// Usage:
+  /// ```dart
+  /// List<KLineEntity> dataList = // your data here;
+  /// DataUtil.calculate(dataList);
+  /// ```
+  ///
+  /// You can also provide custom parameters:
+  /// ```dart
+  /// List<KLineEntity> dataList = // your data here;
+  /// DataUtil.calculate(dataList, [7, 14, 28], 21, 2.5);
+  /// ```
+  ///
+  static _calculate_indicators({
+    required List<KLineEntity>? dataList,
+    required List<CustomIndicator>? customIndicators,
+    List<int> maDayList = const [5, 10, 20],
+    int n = 20,
+    int k = 2,
+  }) {
+    if (dataList == null || dataList.isEmpty) return;
+
+    DataUtil.calcMA(dataList, maDayList);
+    DataUtil.calcBOLL(dataList, n, k);
+    DataUtil.calcVolumeMA(dataList);
+    DataUtil.calcKDJ(dataList);
+    DataUtil.calcMACD(dataList);
+    DataUtil.calcRSI(dataList);
+    DataUtil.calcWR(dataList);
+    DataUtil.calcCCI(dataList);
+
+    // Calculate custom indicators
+    if (customIndicators != null && customIndicators.isNotEmpty) {
+      for (var indicator in customIndicators) {
+        indicator.calculate(dataList);
+      }
+    }
+  }
+
   @override
   void didUpdateWidget(KChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('KChartWidget: didUpdateWidget called');
+    //print('KChartWidget: didUpdateWidget called');
     if (oldWidget.datas != widget.datas ||
         oldWidget.customIndicators != widget.customIndicators ||
         oldWidget.maDayList != widget.maDayList ||
         oldWidget.n != widget.n ||
         oldWidget.k != widget.k) {
-      _calculateIndicators();
+      _calculate_indicators(
+        dataList: widget.datas,
+        customIndicators: widget.customIndicators,
+        maDayList: widget.maDayList,
+        n: widget.n,
+        k: widget.k,
+      );
     }
   }
 
@@ -170,7 +228,7 @@ class _KChartWidgetState extends State<KChartWidget>
 
   @override
   Widget build(BuildContext context) {
-    print('KChartWidget: build called');
+    //print('KChartWidget: build called');
     if (widget.datas != null && widget.datas!.isEmpty) {
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;

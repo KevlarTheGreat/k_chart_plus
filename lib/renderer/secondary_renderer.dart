@@ -41,6 +41,7 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
   void drawChart(KLineEntity lastPoint, KLineEntity curPoint, double lastX,
       double curX, Size size, Canvas canvas) {
     if (indicatorName == null) {
+      // Draw built-in indicator
       switch (state) {
         case SecondaryState.MACD:
           drawMACD(curPoint, canvas, curX, lastPoint, lastX);
@@ -69,6 +70,7 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           break;
       }
     } else {
+      // Draw custom indicator
       CustomIndicatorData curIndicator =
           curPoint.indicatorDataMap[indicatorName]!;
       CustomIndicatorData lastIndicator =
@@ -89,12 +91,17 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           }
           break;
         case ChartType.candlestick:
+          print('Candlestick chart type not yet supported');
           break;
         case ChartType.bar:
           drawBarChart(
               curPoint.indicatorDataMap[indicatorName] as BarIndicatorData,
               canvas,
               curX);
+          break;
+        case ChartType.macd:
+          drawMACD(curPoint, canvas, curX, lastPoint, lastX,
+              indicatorName: indicatorName);
           break;
         default:
           break;
@@ -110,11 +117,30 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
   /// [curX]: The x-coordinate for the current point.
   /// [lastPoint]: The previous MACD data point.
   /// [lastX]: The x-coordinate for the previous point.
+  /// [indicatorName]: The name of the custom indicator, otherwise null.
   /// DEA: The signal line for the MACD.
   /// DIF: The the MACD line.
-  void drawMACD(MACDEntity curPoint, Canvas canvas, double curX,
-      MACDEntity lastPoint, double lastX) {
-    final macd = curPoint.macd ?? 0;
+  void drawMACD(KLineEntity curPoint, Canvas canvas, double curX,
+      KLineEntity lastPoint, double lastX,
+      {String? indicatorName = null}) {
+    double macd = curPoint.macd ?? 0;
+    double curDif = curPoint.dif ?? 0;
+    double curDea = curPoint.dea ?? 0;
+    double lastDif = lastPoint.dif ?? 0;
+    double lastDea = lastPoint.dea ?? 0;
+    if (indicatorName != null) {
+      // if indicatorName is not null, then use the custom MACD data
+      final curCustData =
+          curPoint.indicatorDataMap[indicatorName]! as MACDIndicatorData;
+      final lastCustData =
+          lastPoint.indicatorDataMap[indicatorName]! as MACDIndicatorData;
+      macd = curCustData.macd;
+      curDif = curCustData.dif;
+      curDea = curCustData.dea;
+      lastDif = lastCustData.dif;
+      lastDea = lastCustData.dea;
+    }
+    //TODO: Setup custom colors for MACD
     double macdY = getY(macd);
     double r = mMACDWidth / 2;
     double zeroy = getY(0);
@@ -125,13 +151,11 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
       canvas.drawRect(Rect.fromLTRB(curX - r, zeroy, curX + r, macdY),
           chartPaint..color = this.chartColors.dnColor);
     }
-    if (lastPoint.dif != 0) {
-      drawLine(lastPoint.dif, curPoint.dif, canvas, lastX, curX,
-          this.chartColors.difColor);
+    if (lastDif != 0) {
+      drawLine(lastDif, curDif, canvas, lastX, curX, this.chartColors.difColor);
     }
-    if (lastPoint.dea != 0) {
-      drawLine(lastPoint.dea, curPoint.dea, canvas, lastX, curX,
-          this.chartColors.deaColor);
+    if (lastDea != 0) {
+      drawLine(lastDea, curDea, canvas, lastX, curX, this.chartColors.deaColor);
     }
   }
 
@@ -264,6 +288,29 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
                       ? ""
                       : "S:${format(indicatorData.secondary)}",
                   style: getTextStyle(indicatorData.secondaryColor)),
+            ];
+          }
+          break;
+        case ChartType.macd:
+          //TODO: Setup custom colors for MACD
+          final indicatorData = curIndicator as MACDIndicatorData?;
+          if (indicatorData != null) {
+            children = [
+              TextSpan(
+                  text: "$indicatorName    ",
+                  style: getTextStyle(this.chartColors.defaultTextColor)),
+              if (indicatorData.macd != 0)
+                TextSpan(
+                    text: "MACD:${format(indicatorData.macd)}    ",
+                    style: getTextStyle(this.chartColors.macdColor)),
+              if (indicatorData.dif != 0)
+                TextSpan(
+                    text: "DIF:${format(indicatorData.dif)}    ",
+                    style: getTextStyle(this.chartColors.difColor)),
+              if (indicatorData.dea != 0)
+                TextSpan(
+                    text: "DEA:${format(indicatorData.dea)}    ",
+                    style: getTextStyle(this.chartColors.deaColor)),
             ];
           }
           break;

@@ -24,7 +24,6 @@ class CustomIndicator {
         // indicator name to the map
         entity.addCustomIndicators(customIndicatorTypes: {name: chartType});
       } else {
-        // If it does exist, throw an error
         throw ArgumentError(
             'CustomIndicator Constructor: Custom indicator data with name $name already exists.');
       }
@@ -36,5 +35,6 @@ enum ChartType {
   line,
   candlestick,
   bar,
+  macd,
   // other chart types
 }

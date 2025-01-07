@@ -395,7 +395,17 @@ abstract class BaseChartPainter extends CustomPainter {
           mSecondaryRectList[index].mMinValue =
               min(mSecondaryRectList[index].mMinValue, indicatorData.low);
         }
-        // Add cases for other CustomIndicatorData types as needed
+        if (indicatorData is MACDIndicatorData) {
+          mSecondaryRectList[index].mMaxValue = max(
+              mSecondaryRectList[index].mMaxValue,
+              max(indicatorData.macd,
+                  max(indicatorData.dif, indicatorData.dea)));
+          mSecondaryRectList[index].mMinValue = min(
+              mSecondaryRectList[index].mMinValue,
+              min(indicatorData.macd,
+                  min(indicatorData.dif, indicatorData.dea)));
+        }
+        //TODO: Add cases for other CustomIndicatorData types as needed
       }
     }
   }

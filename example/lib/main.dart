@@ -98,14 +98,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //List<KLineEntity>? datas;
+  // List of KLineEntity objects to store the financial data
   ValueNotifier<List<KLineEntity>> datasNotifier =
       ValueNotifier<List<KLineEntity>>([]);
   bool showLoading = true;
   bool _volHidden = false;
   MainState _mainState = MainState.MA;
   // final Set<SecondaryState> _secondaryStateLi = <SecondaryState>{};
-  final List<SecondaryState> _secondaryStateLi = [];
+  final List<SecondaryState> _secondaryStateList = [];
   List<DepthEntity>? _bids, _asks;
 
   ChartStyle chartStyle = ChartStyle();
@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       datasNotifier.value = data;
 
       // Initialize custom indicators
-      _initCustomIndicator();
+      _initCustomIndicators();
 
       rootBundle.loadString('assets/depth.json').then((result) {
         final parseJson = json.decode(result);
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _initCustomIndicator() {
+  _initCustomIndicators() {
     myCustomIndicators = [
       CustomIndicator(
         name: 'Half Close Price',
@@ -185,16 +185,6 @@ class _MyHomePageState extends State<MyHomePage> {
             (data.indicatorDataMap['Half Close Price'] as LineIndicatorData)
                 .value = customValue;
           }
-          /*
-          for (var entity in data) {
-            // Calculate the difference between the high and low prices
-            final diff = (entity.high - entity.low) / 2;
-            // Add 20% of the diff to the high price.
-            entity.high = entity.high + diff * 2;
-            // Subtract 20% of the diff from the low price.
-            entity.low = entity.low - diff * 2;
-          }
-          */
         },
       ),
       CustomIndicator(
@@ -221,6 +211,14 @@ class _MyHomePageState extends State<MyHomePage> {
             barData.secondary =
                 customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
           }
+        },
+      ),
+      CustomIndicator(
+        name: 'Cust MACD',
+        chartType: ChartType.macd,
+        data: datasNotifier.value, // datas must be initialized before this
+        calculate: (dataList) {
+          DataUtil.calcMACD(dataList, name: 'Cust MACD');
         },
       ),
       // Add more custom indicators here
@@ -344,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   isTrendLine: false,
                   mainState: _mainState,
                   volHidden: _volHidden,
-                  secondaryStateLi: _secondaryStateLi.toSet(),
+                  secondaryStateLi: _secondaryStateList.toSet(),
                   fixedLength: 2,
                   timeFormat: TimeFormat.YEAR_MONTH_DAY,
                   customIndicators: myCustomIndicators,
@@ -403,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Row(
+        child: Wrap(
           children: [
             _buildButton(
               context: context,
@@ -437,7 +435,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
             ),
-            const SizedBox(width: 10), // Add some spacing between the buttons
+            const SizedBox(width: 10),
             _buildButton(
               context: context,
               title: _sineEnabled ? 'Stop Sines' : 'Start Sines',
@@ -452,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
             ),
-            const SizedBox(width: 10), // Add some spacing between the buttons
+            const SizedBox(width: 10),
             _buildButton(
               context: context,
               title: _pulseEnabled ? 'Stop Pulses' : 'Start Pulses',
@@ -507,16 +505,16 @@ class _MyHomePageState extends State<MyHomePage> {
         spacing: 10,
         runSpacing: 5,
         children: SecondaryState.values.map((e) {
-          bool isActive = _secondaryStateLi.contains(e);
+          bool isActive = _secondaryStateList.contains(e);
           return _buildButton(
             context: context,
             title: e.name,
-            isActive: _secondaryStateLi.contains(e),
+            isActive: _secondaryStateList.contains(e),
             onPress: () {
               if (isActive) {
-                _secondaryStateLi.remove(e);
+                _secondaryStateList.remove(e);
               } else {
-                _secondaryStateLi.add(e);
+                _secondaryStateList.add(e);
               }
             },
           );
@@ -595,6 +593,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  /// Fetch data from the JSON file and return a list of KLineEntity objects
   Future<List<KLineEntity>> _getData(String period) async {
     // Fetch data and populate the datas list
     final response = await rootBundle.loadString('assets/chartData.json');

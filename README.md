@@ -1,18 +1,21 @@
 # K Chart Plus Package
 
-## Feature / Summary
+## Summary
 
-This is the best k chart (candlestick chart) package for flutter.  It supports drag, scale, long press, and fling as well as many built-in technical indicators, multi-chart panes, and much more.  It's powerful and and easy to use.  This fork started from TrangLeQuynh/k_chart_plus.  The main goal and feature enhancements in this project are:
+This is the best k chart (candlestick chart) package for flutter.  It's powerful and and easy to use.  This fork started from TrangLeQuynh/k_chart_plus and added user-defined custom secondary indicator capability among several other features!
+
+### Primary Features:  
+**Primary Chart** with time and candlestick (K Line) modes.  Optional trendlines (Drawn, Moving Average, Bollinger, etc).  Optional Volume indicator.    
+**Technical Indicators (built-in)** MACD, KDJ, RSI, WR, and CCI in separate chart panes.  
+**NEW - Secondary Technial Indicators (Custom Defined)** Provide a callback function with your custom data analysis and it will show up in the secondary chart-type that you selected. So far, supports line chart and a two-value bar chart.  I will be adding more types and will take requests.  Every data point in each indicator has a custom color field so you can change the line or bar color dynamically.  
+**UI Supports** Drag, scale, long press, and fling. Lanugauge customizations.   
+**Other Enhancements** Indicators are automatically recalculated every time the widget is rebuit.  Added functions to simulate live data.
 
 ### Project Components:
 
-KChartWidget: The main widget that provides charting functionality, including financial technical indicators.
-
+KChartWidget: The main widget that provides charting functionality, including financial technical indicators.  
+DepthChart:  A separate widget supplied from the same k chart package.  
 Example Application: A sample app demonstrating how to use the KChartWidget and test its features.
-
-### Main Goal:
-
-Customization of Indicators: Allow developers using the KChartWidget to customize financial technical indicators. This customization is implemented and tested within the example application.
 
 ### Implementation Steps:
 
@@ -21,6 +24,7 @@ Update DataUtil: Allow custom indicator calculation functions.
 Modify ChartPainter: Call custom painting functions.  
 Implement in main.dart: Provide custom indicator calculation and painting functions when initializing KChartWidget.
 
+### Examples With Two Custom Indicators (Line and Bar):
 
 |Example1|Example2|
 |:-------------------------:|:-------------------------:|
@@ -34,21 +38,20 @@ First, add `k_chart_plus` as a [dependency in your pubspec.yaml file](https://fl
 k_chart_plus: ^1.0.2
 ```
 
-> If you don't want to support selecting multiple secondary states, you need to use: 
-> ```
-> k_chart_plus:
->    git:
->      url: https://github.com/TrangLeQuynh/k_chart_plus
->      ref: single #branch name
-> ```
->
-
-
 ## Usage
 
-**When you change the data, you must call this:**
+**Main Data and Chart Updates**
 ```dart
-DataUtil.calculate(datas); //This function has some optional parameters: n is BOLL N-day closing price. k is BOLL param.
+// Initialize your data
+List<KLineEntity> data = .....
+// Create a ValueNotifier to store the financial data
+ValueNotifier<List<KLineEntity>> datasNotifier = ValueNotifier<List<KLineEntity>>([]);
+// Set the "value" to a new list to trigger a rebuild and recalculation of indicators.
+datasNotifier.value = data;
+// WARNING:  Modifying individual elements of "value" will not trigger a rebuild, you can optionally modify "value" then call the following to trigger rebuild/calculation:
+datasNotifier.value = List.from(datasNotifier.value);
+
+// NOTE:  DataUtil.calculate() has been removed.  It is now called automatically upon rebuild of the widget.  The built-in secondary charts currently use the same settings as the widget / main indicators. 
 ```
 
 ### Use K line chart
