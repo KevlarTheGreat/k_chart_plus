@@ -188,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       CustomIndicator(
-        name: 'Close Price',
+        name: 'Close Price Noisy',
         chartType: ChartType.bar,
         data: datasNotifier.value, // datas must be initialized before this
         calculate: (dataList) {
@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
             final customValue = data.close - minValue;
             // Modify the existing initialized data
             final barData =
-                data.indicatorDataMap['Close Price'] as BarIndicatorData;
+                data.indicatorDataMap['Close Price Noisy'] as BarIndicatorData;
             barData.primary = customValue;
             barData.secondary =
                 customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
