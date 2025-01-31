@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       datasNotifier.value = data;
 
       // Initialize custom indicators
-      _initCustomIndicators();
+      //_initCustomIndicators();
 
       rootBundle.loadString('assets/depth.json').then((result) {
         final parseJson = json.decode(result);
@@ -177,13 +177,13 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Half Close Price',
         chartType: ChartType.line,
         data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList) {
+        calculate: (dataList, name) {
           for (var data in dataList) {
             // Calculate the custom indicator data
             final customValue = data.close * 0.5;
             // Modify the existing zero-initialized data
-            (data.indicatorDataMap['Half Close Price'] as LineIndicatorData)
-                .value = customValue;
+            (data.indicatorDataMap[name] as LineIndicatorData).value =
+                customValue;
           }
         },
       ),
@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Close Price Noisy',
         chartType: ChartType.bar,
         data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList) {
+        calculate: (dataList, name) {
           double minValue = double.infinity;
           // Find the minimum close price
           for (var data in dataList) {
@@ -205,8 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Set the minimum close price as the base value
             final customValue = data.close - minValue;
             // Modify the existing initialized data
-            final barData =
-                data.indicatorDataMap['Close Price Noisy'] as BarIndicatorData;
+            final barData = data.indicatorDataMap[name] as BarIndicatorData;
             barData.primary = customValue;
             barData.secondary =
                 customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
@@ -217,8 +216,8 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Cust MACD',
         chartType: ChartType.macd,
         data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList) {
-          DataUtil.calcMACD(dataList, name: 'Cust MACD');
+        calculate: (dataList, name) {
+          DataUtil.calcMACD(dataList, name: name);
         },
       ),
       // Add more custom indicators here
@@ -364,6 +363,8 @@ class _MyHomePageState extends State<MyHomePage> {
               _buildMainButtons(),
               _buildTitle(context, 'Secondary State'),
               _buildSecondButtons(),
+              _buildTitle(context, 'Custom Indicators'),
+              _buildCustomButtons(datas),
               const SizedBox(height: 30),
               if (_bids != null && _asks != null)
                 Container(
@@ -520,6 +521,89 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _buildCustomButtons(List<KLineEntity> datas) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        spacing: 10,
+        runSpacing: 5,
+        children: [
+          _buildCustomIndicatorButton(
+              datas, 'Half Close Price 1', ChartType.line, _calcHalfClosePrice),
+          _buildCustomIndicatorButton(datas, 'Close Price Noisy 2',
+              ChartType.bar, _calcClosePriceNoisy),
+          _buildCustomIndicatorButton(
+              datas, 'Cust MACD 3', ChartType.macd, _calcCustMACD),
+        ],
+      ),
+    );
+  }
+
+  _calcHalfClosePrice(dataList, name) {
+    for (var data in dataList) {
+      // Calculate the custom indicator data
+      final customValue = data.close * 0.5;
+      // Modify the existing zero-initialized data
+      (data.indicatorDataMap[name] as LineIndicatorData).value = customValue;
+    }
+  }
+
+  _calcClosePriceNoisy(dataList, name) {
+    double minValue = double.infinity;
+    // Find the minimum close price
+    for (var data in dataList) {
+      if (data.close < minValue) {
+        minValue = data.close;
+      }
+    }
+
+    for (var data in dataList) {
+      // Calculate the custom indicator data
+      // Set the minimum close price as the base value
+      final customValue = data.close - minValue;
+      // Modify the existing initialized data
+      final barData = data.indicatorDataMap[name] as BarIndicatorData;
+      barData.primary = customValue;
+      barData.secondary =
+          customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
+    }
+  }
+
+  _calcCustMACD(dataList, name) {
+    DataUtil.calcMACD(dataList, name: name);
+  }
+
+  Widget _buildCustomIndicatorButton(List<KLineEntity> datas, String name,
+      ChartType chartType, Function(List<KLineEntity>, String) calculate) {
+    bool isActive =
+        myCustomIndicators.any((indicator) => indicator.name == name);
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          if (isActive) {
+            CustomIndicator indicator = myCustomIndicators
+                .firstWhere((indicator) => indicator.name == name);
+            indicator.removeIndicatorData(datas);
+            myCustomIndicators.remove(indicator);
+          } else {
+            CustomIndicator indicator = CustomIndicator(
+              name: name,
+              chartType: chartType,
+              calculate: calculate,
+              data: datas,
+            );
+            myCustomIndicators.add(indicator);
+          }
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isActive ? Colors.blue : Colors.grey,
+      ),
+      child: Text(name),
     );
   }
 

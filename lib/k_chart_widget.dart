@@ -129,7 +129,7 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void initState() {
     super.initState();
-    _calculate_indicators(
+    _calculateIndicators(
       dataList: widget.datas,
       customIndicators: widget.customIndicators,
       maDayList: widget.maDayList,
@@ -168,7 +168,7 @@ class _KChartWidgetState extends State<KChartWidget>
   /// DataUtil.calculate(dataList, [7, 14, 28], 21, 2.5);
   /// ```
   ///
-  static _calculate_indicators({
+  static _calculateIndicators({
     required List<KLineEntity>? dataList,
     required List<CustomIndicator>? customIndicators,
     List<int> maDayList = const [5, 10, 20],
@@ -189,7 +189,7 @@ class _KChartWidgetState extends State<KChartWidget>
     // Calculate custom indicators
     if (customIndicators != null && customIndicators.isNotEmpty) {
       for (var indicator in customIndicators) {
-        indicator.calculate(dataList);
+        indicator.calculate(dataList, indicator.name);
       }
     }
   }
@@ -198,19 +198,13 @@ class _KChartWidgetState extends State<KChartWidget>
   void didUpdateWidget(KChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     //print('KChartWidget: didUpdateWidget called');
-    if (oldWidget.datas != widget.datas ||
-        oldWidget.customIndicators != widget.customIndicators ||
-        oldWidget.maDayList != widget.maDayList ||
-        oldWidget.n != widget.n ||
-        oldWidget.k != widget.k) {
-      _calculate_indicators(
-        dataList: widget.datas,
-        customIndicators: widget.customIndicators,
-        maDayList: widget.maDayList,
-        n: widget.n,
-        k: widget.k,
-      );
-    }
+    _calculateIndicators(
+      dataList: widget.datas,
+      customIndicators: widget.customIndicators,
+      maDayList: widget.maDayList,
+      n: widget.n,
+      k: widget.k,
+    );
   }
 
   @override

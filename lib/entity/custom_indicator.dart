@@ -9,7 +9,8 @@ import 'k_line_entity.dart';
 class CustomIndicator {
   final String name;
   final ChartType chartType;
-  final Function(List<KLineEntity>) calculate;
+  final Function(List<KLineEntity>, String) calculate;
+  bool _dataInitialized = false;
 
   CustomIndicator({
     required this.name,
@@ -17,16 +18,35 @@ class CustomIndicator {
     required this.calculate,
     required List<KLineEntity> data,
   }) {
-    // Initialize custom indicator data
-    for (var entity in data) {
-      if (!entity.indicatorDataMap.containsKey(name)) {
-        // If data doesn't already include this indicator name, add the
-        // indicator name to the map
-        entity.addCustomIndicators(customIndicatorTypes: {name: chartType});
-      } else {
-        throw ArgumentError(
-            'CustomIndicator Constructor: Custom indicator data with name $name already exists.');
+    initIndicatorData(data);
+  }
+
+  /// Method to add custom indicator data to the KLineEntity
+  /// [dataList] is a list of KLineEntity data
+  void initIndicatorData(List<KLineEntity> dataList) {
+    if (!_dataInitialized) {
+      // Initialize custom indicator data
+      for (var entity in dataList) {
+        if (!entity.indicatorDataMap.containsKey(name)) {
+          // If data doesn't already include this indicator name, add the
+          // indicator name to the map
+          entity.addCustomIndicators(customIndicatorTypes: {name: chartType});
+        } else {
+          throw ArgumentError(
+              'CustomIndicator: Custom indicator data with name $name already exists.');
+        }
       }
+      _dataInitialized = true;
+    }
+  }
+
+  /// Method to remove custom indicator data from the KLineEntity
+  void removeIndicatorData(List<KLineEntity> data) {
+    if (_dataInitialized) {
+      for (var entity in data) {
+        entity.indicatorDataMap.remove(name);
+      }
+      _dataInitialized = false;
     }
   }
 }
