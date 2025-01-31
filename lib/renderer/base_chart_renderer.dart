@@ -33,6 +33,7 @@ abstract class BaseChartRenderer<T> {
     }
     scaleY = chartRect.height / (maxValue - minValue);
     gridPaint.color = gridColor;
+    //TODO: Custom indicators take the space of the main chart instead of adding to the size of the widget like the secondary ones do
     /*
     print("maxValue=====" +
         maxValue.toString() +
