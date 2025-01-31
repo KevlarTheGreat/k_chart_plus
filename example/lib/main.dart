@@ -581,8 +581,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ChartType chartType, Function(List<KLineEntity>, String) calculate) {
     bool isActive =
         myCustomIndicators.any((indicator) => indicator.name == name);
-    return ElevatedButton(
-      onPressed: () {
+    //return ElevatedButton(
+    return _buildButton(
+      context: context,
+      title: name,
+      isActive: isActive,
+      onPress: () {
         setState(() {
           if (isActive) {
             CustomIndicator indicator = myCustomIndicators
@@ -600,10 +604,6 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         });
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isActive ? Colors.blue : Colors.grey,
-      ),
-      child: Text(name),
     );
   }
 
