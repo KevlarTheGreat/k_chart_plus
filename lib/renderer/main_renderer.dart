@@ -17,7 +17,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   MainState state;
   bool isLine;
 
-  //绘制的内容区域
+  // The content area to be drawn
   late Rect _contentRect;
   double _contentPadding = 5.0;
   List<int> maDayList;
@@ -133,7 +133,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     ..style = PaintingStyle.fill
     ..isAntiAlias = true;
 
-  //画折线图
+  // Draw polyline chart
   drawPolyline(double lastPrice, double curPrice, Canvas canvas, double lastX,
       double curX) {
 //    drawLine(lastPrice + 100, curPrice + 100, canvas, lastX, curX, ChartColors.kLineColor);
@@ -146,12 +146,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 //      mLinePath.cubicTo(
 //          (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
 //    }
-    if (lastX == curX) lastX = 0; //起点位置填充
+    if (lastX == curX) lastX = 0; //Fill starting position
     mLinePath!.moveTo(lastX, getY(lastPrice));
     mLinePath!.cubicTo((lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2,
         getY(curPrice), curX, getY(curPrice));
 
-    //画阴影
+    //Draw Shadow
     mLineFillShader ??= LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,

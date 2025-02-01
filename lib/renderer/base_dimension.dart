@@ -1,3 +1,5 @@
+import 'package:k_chart_plus/entity/custom_indicator.dart';
+
 import '../k_chart_widget.dart';
 
 /// Base Dimension
@@ -31,12 +33,15 @@ class BaseDimension {
     required double mBaseHeight,
     required bool volHidden,
     required Set<SecondaryState> secondaryStateLi,
+    required List<CustomIndicator> customIndicatorLi,
   }) {
     _mBaseHeight = mBaseHeight;
     _mVolumeHeight = volHidden != true ? _mBaseHeight * 0.2 : 0;
     _mSecondaryHeight = _mBaseHeight * 0.2;
     _mDisplayHeight = _mBaseHeight +
         _mVolumeHeight +
-        (_mSecondaryHeight * secondaryStateLi.length);
+        //(_mSecondaryHeight * secondaryStateLi.length);
+        (_mSecondaryHeight * (secondaryStateLi.length + customIndicatorLi.length));
+
   }
 }

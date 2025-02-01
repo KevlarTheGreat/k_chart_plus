@@ -227,10 +227,12 @@ class _KChartWidgetState extends State<KChartWidget>
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
+    /// BaseDimension represents the height of the base chart, volume chart, and secondary charts
     final BaseDimension baseDimension = BaseDimension(
       mBaseHeight: widget.mBaseHeight,
       volHidden: widget.volHidden,
       secondaryStateLi: widget.secondaryStateLi,
+      customIndicatorLi: widget.customIndicators!,
     );
     final _painter = ChartPainter(
       widget.chartStyle,

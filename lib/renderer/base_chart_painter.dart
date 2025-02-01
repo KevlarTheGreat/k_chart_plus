@@ -37,7 +37,11 @@ abstract class BaseChartPainter extends CustomPainter {
 
   /// Secondary list support
   List<RenderRect> mSecondaryRectList = [];
-  late double mDisplayHeight, mWidth;
+  ///mDisplayHeight represents the total height available for
+  ///displaying the chart, including the main chart area, volume area,
+  ///and secondary indicators.
+  late double mDisplayHeight;
+  late double mWidth;
   // padding
   double mTopPadding = 30.0, mBottomPadding = 20.0, mChildPadding = 12.0;
   // grid: rows - columns
@@ -185,7 +189,10 @@ abstract class BaseChartPainter extends CustomPainter {
   void initRect(Size size) {
     double volHeight = baseDimension.mVolumeHeight;
     double secondaryHeight = baseDimension.mSecondaryHeight;
-
+    // mDisplayHeight is the total height available for displaying widgit (main chart,
+    // volume chart, secondary chart)
+    // mainHeight is the height of the main chart which is calculated by subtracting
+    // the volume chart height and the secondary chart heights from the total height
     double mainHeight = mDisplayHeight;
     mainHeight -= volHeight;
     mainHeight -= (secondaryHeight *

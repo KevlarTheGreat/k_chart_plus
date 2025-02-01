@@ -33,17 +33,19 @@ abstract class BaseChartRenderer<T> {
     }
     scaleY = chartRect.height / (maxValue - minValue);
     gridPaint.color = gridColor;
-    //TODO: Custom indicators take the space of the main chart instead of adding to the size of the widget like the secondary ones do
-    /*
-    print("maxValue=====" +
+    
+/*
+    print("chartRect.height: " +
+        chartRect.height.toString() +
+        "maxValue: " +
         maxValue.toString() +
-        "====minValue===" +
+        "  minValue: " +
         minValue.toString() +
-        "==scaleY==" +
+        "  scaleY: " +
         scaleY.toString() +
-        "==chartRect.top==" +
+        "  chartRect.top: " +
         chartRect.top.toString());
-    */
+        */
   }
 
   /// Gets the global Y coordinate of the given data value.
