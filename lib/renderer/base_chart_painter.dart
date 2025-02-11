@@ -37,6 +37,7 @@ abstract class BaseChartPainter extends CustomPainter {
 
   /// Secondary list support
   List<RenderRect> mSecondaryRectList = [];
+
   ///mDisplayHeight represents the total height available for
   ///displaying the chart, including the main chart area, volume area,
   ///and secondary indicators.
@@ -405,12 +406,12 @@ abstract class BaseChartPainter extends CustomPainter {
         if (indicatorData is MACDIndicatorData) {
           mSecondaryRectList[index].mMaxValue = max(
               mSecondaryRectList[index].mMaxValue,
-              max(indicatorData.macd,
-                  max(indicatorData.dif, indicatorData.dea)));
+              max(indicatorData.macdHistogram,
+                  max(indicatorData.macdLine, indicatorData.signalLine)));
           mSecondaryRectList[index].mMinValue = min(
               mSecondaryRectList[index].mMinValue,
-              min(indicatorData.macd,
-                  min(indicatorData.dif, indicatorData.dea)));
+              min(indicatorData.macdHistogram,
+                  min(indicatorData.macdLine, indicatorData.signalLine)));
         }
         //TODO: Add cases for other CustomIndicatorData types as needed
       }

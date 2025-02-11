@@ -6,71 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:k_chart_plus/k_chart_plus.dart';
 
-///
-/// High-level overview:
-///
-/// 1. **UI Structure**:
-///    - Constructs a column of widgets that make up part of the app's UI.
-///    - Includes a chart widget, titles, buttons, and a conditional container for displaying a depth chart.
-///
-/// 2. **KChartWidget**:
-///    - The `KChartWidget` is a primary part of the UI, displaying a financial chart.
-///    - Initialized with several parameters:
-///      - `datas`: The data to be displayed on the chart.
-///      - `chartStyle` and `chartColors`: Styling and color information for the chart.
-///      - `mBaseHeight`: The base height of the chart.
-///      - `isTrendLine`: A boolean indicating whether to show trend lines.
-///      - `mainState`: The state of the main chart.
-///      - `volHidden`: A boolean indicating whether the volume is hidden.
-///      - `secondaryStateLi`: A set of secondary states for the chart.
-///      - `fixedLength`: The number of decimal places to display.
-///      - `timeFormat`: The format for displaying time on the chart.
-///
-/// 3. **Titles and Buttons**:
-///    - `_buildTitle(context, 'VOL')`: Builds a title widget with the text 'VOL'.
-///    - `buildVolButton()`: Presumably builds a button related to volume.
-///    - `_buildTitle(context, 'Main State')`: Builds a title widget with the text 'Main State'.
-///    - `buildMainButtons()`: Presumably builds buttons related to the main state.
-///    - `_buildTitle(context, 'Secondary State')`: Builds a title widget with the text 'Secondary State'.
-///    - `buildSecondButtons()`: Presumably builds buttons related to the secondary state.
-///
-/// 4. **Depth Chart**:
-///    - A `Container` widget is conditionally displayed if `_bids` and `_asks` are not null.
-///    - The container has a white background, a fixed height of 320, and takes the full width of its parent.
-///    - Contains a `DepthChart` widget, initialized with `_bids`, `_asks`, and `chartColors`.
-///
-/// 5. **Loading Indicator**:
-///    - If `showLoading` is true, a `Container` is displayed over the chart with a loading indicator.
-///
-/// 6. **Helper Method**:
-///    - `_buildTitle(BuildContext context, String title)`: A helper method that creates a `Padding` widget
-///       containing a `Text` widget styled with the app's theme.
-///
-/// 7. **Data Management**:
-///    - The data for the `KChartWidget` (`datas`) and other widgets is managed within the state of the widget.
-///    - The `_bids` and `_asks` lists are updated with new data, and `setState` is called to refresh the UI.
-///
-/// 8. **Loading Data**:
-///    - `getChartDataFromJson()`: Asynchronously loads JSON data from the `assets/chartData.json` file.
-///    - `solveChartData(String result)`: Parses the JSON data, converts it into a list of `KLineEntity` objects, and
-///       calculates technical indicators using `DataUtil.calculate(datas!)`.
-///    - The `datas` list is then updated with the calculated indicators, and `setState` is called to refresh the UI.
-///
-/// 9. **Calculating Indicators**:
-///    - `DataUtil.calculate(datas!)`: This method calculates various technical indicators (e.g., Moving Average,
-///       Bollinger Bands, MACD) for the `datas` list.
-///    - The calculated indicators are stored in the properties of each `KLineEntity` object within the `datas` list.
-///
-/// 10. **Using Data in KChartWidget**:
-///     - The `KChartWidget` uses the `datas` list, which now contains the calculated technical indicators, to render the financial chart.
-///     - The widget displays the chart based on the provided data, styles, and states.
-///
-/// Overall, this file is responsible for constructing a section of the app's UI, including a financial chart, titles,
-/// buttons, and a depth chart, based on the provided data and state. The `KChartWidget` is a central component,
-/// displaying the financial data managed by the state of the widget. The data is loaded from a JSON file, parsed,
-/// and processed to calculate technical indicators using the `DataUtil.calculate` method, and then used by the
-///  `KChartWidget` to render the chart.
-
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -104,7 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool showLoading = true;
   bool _volHidden = false;
   MainState _mainState = MainState.MA;
-  // final Set<SecondaryState> _secondaryStateLi = <SecondaryState>{};
   final List<SecondaryState> _secondaryStateList = [];
   List<DepthEntity>? _bids, _asks;
 
@@ -125,6 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _pulseEnabled = false;
   Timer? _dataGenTimer;
 
+  // Boolean to control data source.
+  // Set to true to use local data.
+  // Set to false to use internet data.
+  bool useLocalData = false;
+
   @override
   void initState() {
     super.initState();
@@ -133,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     myCustomIndicators = [];
 
     // Fetch initial data and initialize custom indicators
-    _getData('1day').then((data) {
+    getData('1day').then((data) {
       datasNotifier.value = data;
 
       // Initialize custom indicators
@@ -171,57 +110,38 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _initCustomIndicators() {
-    myCustomIndicators = [
-      CustomIndicator(
-        name: 'Half Close Price',
-        chartType: ChartType.line,
-        data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList, name) {
-          for (var data in dataList) {
-            // Calculate the custom indicator data
-            final customValue = data.close * 0.5;
-            // Modify the existing zero-initialized data
-            (data.indicatorDataMap[name] as LineIndicatorData).value =
-                customValue;
-          }
-        },
-      ),
-      CustomIndicator(
-        name: 'Close Price Noisy',
-        chartType: ChartType.bar,
-        data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList, name) {
-          double minValue = double.infinity;
-          // Find the minimum close price
-          for (var data in dataList) {
-            if (data.close < minValue) {
-              minValue = data.close;
-            }
-          }
+  Future<List<KLineEntity>> getData(String period) async {
+    if (useLocalData) {
+      return _getDataFromFile();
+    } else {
+      return _getDataFromInternet(period);
+    }
+  }
 
-          for (var data in dataList) {
-            // Calculate the custom indicator data
-            // Set the minimum close price as the base value
-            final customValue = data.close - minValue;
-            // Modify the existing initialized data
-            final barData = data.indicatorDataMap[name] as BarIndicatorData;
-            barData.primary = customValue;
-            barData.secondary =
-                customValue + customValue * (Random().nextDouble() - 0.5) * 0.6;
-          }
-        },
-      ),
-      CustomIndicator(
-        name: 'Cust MACD',
-        chartType: ChartType.macd,
-        data: datasNotifier.value, // datas must be initialized before this
-        calculate: (dataList, name) {
-          DataUtil.calcMACD(dataList, name: name);
-        },
-      ),
-      // Add more custom indicators here
-    ];
+  Future<List<KLineEntity>> _getDataFromFile() async {
+    final response = await rootBundle.loadString('assets/chartData.json');
+    final Map<String, dynamic> jsonData = json.decode(response);
+    final List<dynamic> dataList = jsonData['data']; // Extract the 'data' array
+    return dataList.reversed.map((item) => KLineEntity.fromJson(item)).toList();
+  }
+
+  Future<List<KLineEntity>> _getDataFromInternet(String period) async {
+    var url =
+        'https://api.huobi.br.com/market/history/kline?period=$period&size=300&symbol=btcusdt';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData['status'] == 'error') {
+        throw Exception('Error from API: ${jsonData['err-msg']}');
+      }
+      final List<dynamic> dataList =
+          jsonData['data']; // Extract the 'data' array
+      return dataList.reversed
+          .map((item) => KLineEntity.fromJson(item))
+          .toList();
+    } else {
+      throw Exception('Failed to load data from the internet');
+    }
   }
 
   // So far, only needed to stop the debug timers
@@ -252,19 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
         for (int i = 0; i < datasNotifier.value.length; i++) {
           final entity = datasNotifier.value[i];
           entity.low = amplitude * sin(frequency * i - debugPhase) + mid;
-          //entity.low = amplitude * sin(frequency * i) + mid;
           entity.open = entity.low;
-
-          // In phase, positive / negative
-          //entity.high = (entity.low + amplitude * 0.9 * debugValue) + mid;
-
-          // Slightly out of phase
-          //entity.high = amplitude * sin(frequency * i - debugPhase + 0.2 * pi) + mid;
-
-          // Slightly different frequency
           entity.high =
               amplitude * sin((frequency + 0.05) * i - debugPhase) + mid;
-
           entity.close = entity.high;
         }
         // Update the list to trigger a rebuild
@@ -300,6 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Initialize the depth chart
   void initDepth(List<DepthEntity>? bids, List<DepthEntity>? asks) {
     if (bids == null || asks == null || bids.isEmpty || asks.isEmpty) return;
     _bids = [];
@@ -390,7 +301,6 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Text(
         title,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              // color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
       ),
@@ -479,6 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Build main indicator buttons
   Widget _buildMainButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -498,6 +409,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Build secondary indicator buttons
   Widget _buildSecondButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -524,6 +436,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Build custom indicator buttons
   Widget _buildCustomButtons(List<KLineEntity> datas) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -543,6 +456,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Custom indicator that calculates half the close price
   _calcHalfClosePrice(dataList, name) {
     for (var data in dataList) {
       // Calculate the custom indicator data
@@ -552,6 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Custom indicator that adds noise to the close price
   _calcClosePriceNoisy(dataList, name) {
     double minValue = double.infinity;
     // Find the minimum close price
@@ -573,6 +488,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Custom MACD Indicator Demonstrating use of the built-in MACD calculation
   _calcCustMACD(dataList, name) {
     DataUtil.calcMACD(dataList, name: name);
   }
@@ -675,60 +591,5 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     });
-  }
-
-  /// Fetch data from the JSON file and return a list of KLineEntity objects
-  Future<List<KLineEntity>> _getData(String period) async {
-    // Fetch data and populate the datas list
-    final response = await rootBundle.loadString('assets/chartData.json');
-    final Map<String, dynamic> jsonData = json.decode(response);
-    final List<dynamic> dataList = jsonData['data']; // Extract the 'data' array
-    return dataList.reversed.map((item) => KLineEntity.fromJson(item)).toList();
-  }
-
-  /* // Old code for fetching data from the internet
-  void getData(String period) {
-    final Future<String> future = getChartDataFromInternet(period);
-    //final Future<String> future = getChatDataFromJson();
-    future.then((String result) {
-      solveChartData(result);
-    }).catchError((_) {
-      showLoading = false;
-      setState(() {});
-      debugPrint('### datas error $_');
-    });
-  }
-
-  Future<String> getChartDataFromInternet(String? period) async {
-    var url =
-        'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
-    late String result;
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      result = response.body;
-    } else {
-      debugPrint('Failed getting IP address');
-    }
-    return result;
-  }
-
-  Future<String> getChartDataFromJson() async {
-    return rootBundle.loadString('assets/chartData.json');
-  }
-  */
-
-  void _solveChartData(String result) {
-    final Map parseJson = json.decode(result) as Map<dynamic, dynamic>;
-    final list = parseJson['data'] as List<dynamic>;
-    datasNotifier.value = list
-        .map((item) => KLineEntity.fromJson(item as Map<String, dynamic>))
-        .toList()
-        .reversed
-        .toList()
-        .cast<KLineEntity>();
-
-    //DataUtil.calculate(datas!);
-    showLoading = false;
-    setState(() {});
   }
 }

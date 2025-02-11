@@ -76,18 +76,24 @@ class BarIndicatorData extends CustomIndicatorData {
 }
 
 class MACDIndicatorData extends CustomIndicatorData {
-  double dif;
-  double dea;
-  double macd;
+  double macdLine; // DIF line data point
+  double signalLine; // DEA line data point
+  double macdHistogram; // MACD histogram data point
 
-  Color primaryColor;
-  Color secondaryColor;
+  Color macdLineColor;
+  Color signalLineColor;
 
+  /// Constructor for MACDIndicatorData
+  /// [macdLine] is the DIF line data point
+  /// [signalLine] is the DEA line data point
+  /// [macdHistogram] is the MACD histogram data point
+  /// [macdLineColor] is the color of the DIF line
+  /// [signalLineColor] is the color of the DEA line
   MACDIndicatorData({
-    this.dif = 0.0,
-    this.dea = 0.0,
-    this.macd = 0.0,
-    this.primaryColor = const Color(0xff4c5c74),
-    this.secondaryColor = const Color.fromARGB(255, 93, 16, 129),
+    this.macdLine = 0.0,
+    this.signalLine = 0.0,
+    this.macdHistogram = 0.0,
+    this.macdLineColor = const Color(0xff4c5c74),
+    this.signalLineColor = const Color.fromARGB(255, 93, 16, 129),
   }) : super(ChartType.macd);
 }

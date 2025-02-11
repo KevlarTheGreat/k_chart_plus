@@ -124,23 +124,26 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
       KLineEntity lastPoint, double lastX,
       {String? indicatorName = null}) {
     double macd = curPoint.macd ?? 0;
-    double curDif = curPoint.dif ?? 0;
-    double curDea = curPoint.dea ?? 0;
+    double curDif = curPoint.dif ?? 0; // DIF is the MACD line
+    double curDea = curPoint.dea ?? 0; // DEA is the signal line for MACD
     double lastDif = lastPoint.dif ?? 0;
     double lastDea = lastPoint.dea ?? 0;
+    Color difColor = this.chartColors.difColor;
+    Color deaColor = this.chartColors.deaColor;
     if (indicatorName != null) {
       // if indicatorName is not null, then use the custom MACD data
       final curCustData =
           curPoint.indicatorDataMap[indicatorName]! as MACDIndicatorData;
       final lastCustData =
           lastPoint.indicatorDataMap[indicatorName]! as MACDIndicatorData;
-      macd = curCustData.macd;
-      curDif = curCustData.dif;
-      curDea = curCustData.dea;
-      lastDif = lastCustData.dif;
-      lastDea = lastCustData.dea;
+      macd = curCustData.macdHistogram;
+      curDif = curCustData.macdLine;
+      curDea = curCustData.signalLine;
+      lastDif = lastCustData.macdLine;
+      lastDea = lastCustData.signalLine;
+      difColor = curCustData.macdLineColor;
+      deaColor = curCustData.signalLineColor;
     }
-    //TODO: Setup custom colors for MACD
     double macdY = getY(macd);
     double r = mMACDWidth / 2;
     double zeroy = getY(0);
@@ -152,10 +155,10 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           chartPaint..color = this.chartColors.dnColor);
     }
     if (lastDif != 0) {
-      drawLine(lastDif, curDif, canvas, lastX, curX, this.chartColors.difColor);
+      drawLine(lastDif, curDif, canvas, lastX, curX, difColor);
     }
     if (lastDea != 0) {
-      drawLine(lastDea, curDea, canvas, lastX, curX, this.chartColors.deaColor);
+      drawLine(lastDea, curDea, canvas, lastX, curX, deaColor);
     }
   }
 
@@ -292,28 +295,28 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           }
           break;
         case ChartType.macd:
-          //TODO: Setup custom colors for MACD
           final indicatorData = curIndicator as MACDIndicatorData?;
           if (indicatorData != null) {
             children = [
               TextSpan(
                   text: "$indicatorName    ",
                   style: getTextStyle(this.chartColors.defaultTextColor)),
-              if (indicatorData.macd != 0)
+              if (indicatorData.macdHistogram != 0)
                 TextSpan(
-                    text: "MACD:${format(indicatorData.macd)}    ",
+                    text: "HISTO:${format(indicatorData.macdHistogram)}    ",
                     style: getTextStyle(this.chartColors.macdColor)),
-              if (indicatorData.dif != 0)
+              if (indicatorData.macdLine != 0)
                 TextSpan(
-                    text: "DIF:${format(indicatorData.dif)}    ",
-                    style: getTextStyle(this.chartColors.difColor)),
-              if (indicatorData.dea != 0)
+                    text: "MACD:${format(indicatorData.macdLine)}    ",
+                    style: getTextStyle(indicatorData.macdLineColor)),
+              if (indicatorData.signalLine != 0)
                 TextSpan(
-                    text: "DEA:${format(indicatorData.dea)}    ",
-                    style: getTextStyle(this.chartColors.deaColor)),
+                    text: "Signal:${format(indicatorData.signalLine)}    ",
+                    style: getTextStyle(indicatorData.signalLineColor)),
             ];
           }
           break;
+        //TODO: Add cases for other CustomIndicatorData types as needed
         default:
           break;
       }

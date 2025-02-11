@@ -48,7 +48,6 @@ class KChartWidget extends StatefulWidget {
   final Function(bool)? onLoadMore;
 
   final int fixedLength;
-  final List<int> maDayList;
   final int flingTime;
   final double flingRatio;
   final Curve flingCurve;
@@ -59,10 +58,15 @@ class KChartWidget extends StatefulWidget {
   final bool isTrendLine;
   final double xFrontPadding;
 
-  // Secondary Indicator Support
-  final List<CustomIndicator>? customIndicators;
+  /// Used for Main Chart Moving Averages. Default is [5, 10, 20].
+  final List<int> maDayList;
+
+  // Bollinger Bands
   final int n;
   final int k;
+
+  // Custom Indicator Support
+  final List<CustomIndicator>? customIndicators;
 
   KChartWidget({
     required this.datas,
@@ -85,11 +89,11 @@ class KChartWidget extends StatefulWidget {
     this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
     this.onLoadMore,
     this.fixedLength = 2,
-    // TODO: For now, maDayList used for main and built-in secondary indicators. Need to separate them.
+
+    /// Used for Main Chart Moving Averages.l Default is [5, 10, 20].
     this.maDayList = const [5, 10, 20],
-    //TODO: When maDayList is separated, it might be best to create a structure to hold the maDayList, n, and k values.
-    this.n = 20, // For built-in secondary indicators
-    this.k = 2, // For built-in secondary indicators
+    this.n = 20, // For Bollinger Bands
+    this.k = 2, // For Bollinger Bands
     this.flingTime = 600,
     this.flingRatio = 0.5,
     this.flingCurve = Curves.decelerate,
@@ -152,7 +156,7 @@ class _KChartWidgetState extends State<KChartWidget>
   ///
   /// The default parameters for the calculations are:
   /// - [dataList] is the list of KLineEntity objects for which the indicators will be calculated.
-  /// - [maDayList]: A list of integers representing the periods for the moving averages. Default is [5, 10, 20].
+  /// - [maDayList]: A list of integers representing the periods for the main chart moving averages. Default is [5, 10, 20].
   /// - [n]: An integer representing the period for the Bollinger Bands calculation. Default is 20.
   /// - [k]: A double representing the number of standard deviations for the Bollinger Bands calculation. Default is 2.
   ///
@@ -227,6 +231,7 @@ class _KChartWidgetState extends State<KChartWidget>
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
+
     /// BaseDimension represents the height of the base chart, volume chart, and secondary charts
     final BaseDimension baseDimension = BaseDimension(
       mBaseHeight: widget.mBaseHeight,

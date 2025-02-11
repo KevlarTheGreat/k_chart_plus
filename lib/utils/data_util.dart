@@ -134,9 +134,9 @@ class DataUtil {
         // the right type of CustomIndicatorData based on the ChartType
         MACDIndicatorData entityData =
             entity.indicatorDataMap[name] as MACDIndicatorData;
-        entityData.dif = dif;
-        entityData.dea = dea;
-        entityData.macd = macd;
+        entityData.macdLine = dif;
+        entityData.signalLine = dea;
+        entityData.macdHistogram = macd;
       } else {
         // Write the results to the built-in indicator entity
         entity.dif = dif;
