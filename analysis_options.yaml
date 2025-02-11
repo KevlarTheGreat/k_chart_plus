@@ -1,0 +1,10 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    # strict-raw-types: true
+    # Treat print statements as errors instead of just warnings.
+
+linter:
+  rules:
+    # avoid_print: true  # This should now be enforced more strictly
