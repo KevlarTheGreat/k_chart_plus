@@ -10,10 +10,11 @@ class DepthChart extends StatefulWidget {
   final ChartColors chartColors;
   final DepthChartTranslations chartTranslations;
 
-  DepthChart(
+  const DepthChart(
     this.bids,
     this.asks,
     this.chartColors, {
+    super.key,
     this.fixedLength = 2,
     this.offset = const Offset(10, 10),
     this.chartTranslations = const DepthChartTranslations(),
@@ -106,21 +107,21 @@ class DepthChartPainter extends CustomPainter {
   ) {
     mBuyLinePaint ??= Paint()
       ..isAntiAlias = true
-      ..color = this.chartColors.depthBuyColor
+      ..color = chartColors.depthBuyColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     mSellLinePaint ??= Paint()
       ..isAntiAlias = true
-      ..color = this.chartColors.depthSellColor
+      ..color = chartColors.depthSellColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
     mBuyPathPaint ??= Paint()
       ..isAntiAlias = true
-      ..color = this.chartColors.depthBuyPathColor;
+      ..color = chartColors.depthBuyPathColor;
     mSellPathPaint ??= Paint()
       ..isAntiAlias = true
-      ..color = this.chartColors.depthSellPathColor;
+      ..color = chartColors.depthSellPathColor;
     mBuyPath ??= Path();
     mSellPath ??= Path();
     init();
@@ -130,7 +131,9 @@ class DepthChartPainter extends CustomPainter {
     if (mBuyData == null ||
         mBuyData!.isEmpty ||
         mSellData == null ||
-        mSellData!.isEmpty) return;
+        mSellData!.isEmpty) {
+      return;
+    }
     mMaxVolume = mBuyData![0].vol;
     mMaxVolume = max(mMaxVolume!, mSellData!.last.vol);
     mMaxVolume = mMaxVolume! * 1.05;
@@ -152,18 +155,20 @@ class DepthChartPainter extends CustomPainter {
     if (mBuyData == null ||
         mSellData == null ||
         mBuyData!.isEmpty ||
-        mSellData!.isEmpty) return;
+        mSellData!.isEmpty) {
+      return;
+    }
     mWidth = size.width;
     mDrawWidth = mWidth / 2;
     mDrawHeight = size.height - mPaddingBottom;
     // canvas.drawColor(Colors.green, BlendMode.srcATop);
     canvas.save();
-    //绘制买入区域
+    // Draw buy area
     drawBuy(canvas);
-    //绘制卖出区域
+    // Draw sell area
     drawSell(canvas);
 
-    //绘制界面相关文案
+    // Draw interface related text
     drawText(canvas);
     canvas.restore();
   }
@@ -333,8 +338,8 @@ class DepthChartPainter extends CustomPainter {
     ///draw popup info
     ///
     _PopupPainter popupPainter = _PopupPainter(
-      chartTranslations: this.chartTranslations,
-      chartColors: this.chartColors,
+      chartTranslations: chartTranslations,
+      chartColors: chartColors,
       price: entity.price.toStringAsFixed(fixedLength!),
       amount: entity.vol.toStringAsFixed(fixedLength!),
     );
@@ -379,7 +384,7 @@ class DepthChartPainter extends CustomPainter {
 
   getTextPainter(String text) => TextPainter(
         text: TextSpan(
-          text: "$text",
+          text: text,
           style: TextStyle(color: chartColors.defaultTextColor, fontSize: 10),
         ),
         textDirection: TextDirection.ltr,
@@ -417,15 +422,14 @@ class _PopupPainter {
 
   _PopupPainter({
     required DepthChartTranslations chartTranslations,
-    required ChartColors chartColors,
+    required this.chartColors,
     required String price,
     required String amount,
   }) {
-    this.chartColors = chartColors;
-    this.pricePaint = _getTextPainter(chartTranslations.price, price);
-    this.amountPaint = _getTextPainter(chartTranslations.amount, amount);
-    this.pricePaint.layout();
-    this.amountPaint.layout();
+    pricePaint = _getTextPainter(chartTranslations.price, price);
+    amountPaint = _getTextPainter(chartTranslations.amount, amount);
+    pricePaint.layout();
+    amountPaint.layout();
   }
 
   void paint(Canvas canvas, Offset offset) {

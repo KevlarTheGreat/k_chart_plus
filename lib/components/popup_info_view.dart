@@ -15,7 +15,7 @@ class PopupInfoView extends StatelessWidget {
   final int fixedLength;
 
   const PopupInfoView({
-    Key? key,
+    super.key,
     required this.entity,
     required this.width,
     required this.chartColors,
@@ -23,7 +23,7 @@ class PopupInfoView extends StatelessWidget {
     required this.materialInfoDialog,
     required this.timeFormat,
     required this.fixedLength,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
