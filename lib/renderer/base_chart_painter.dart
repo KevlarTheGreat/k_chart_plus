@@ -85,20 +85,20 @@ abstract class BaseChartPainter extends CustomPainter {
     this.isLine = false,
   }) {
     mItemCount = datas?.length ?? 0;
-    mPointWidth = this.chartStyle.pointWidth;
-    mTopPadding = this.chartStyle.topPadding;
-    mBottomPadding = this.chartStyle.bottomPadding;
-    mChildPadding = this.chartStyle.childPadding;
-    mGridRows = this.chartStyle.gridRows;
-    mGridColumns = this.chartStyle.gridColumns;
+    mPointWidth = chartStyle.pointWidth;
+    mTopPadding = chartStyle.topPadding;
+    mBottomPadding = chartStyle.bottomPadding;
+    mChildPadding = chartStyle.childPadding;
+    mGridRows = chartStyle.gridRows;
+    mGridColumns = chartStyle.gridColumns;
     mDataLen = mItemCount * mPointWidth;
     initFormats();
   }
 
   /// init format time
   void initFormats() {
-    if (this.chartStyle.dateTimeFormat != null) {
-      mFormats = this.chartStyle.dateTimeFormat!;
+    if (chartStyle.dateTimeFormat != null) {
+      mFormats = chartStyle.dateTimeFormat!;
       return;
     }
 

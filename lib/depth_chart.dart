@@ -21,7 +21,7 @@ class DepthChart extends StatefulWidget {
   });
 
   @override
-  _DepthChartState createState() => _DepthChartState();
+  State<DepthChart> createState() => _DepthChartState();
 }
 
 class _DepthChartState extends State<DepthChart> {
@@ -443,12 +443,12 @@ class _PopupPainter {
       text: TextSpan(
         text: "$label: ",
         style: TextStyle(
-            color: this.chartColors.infoWindowTitleColor, fontSize: 10),
+            color: chartColors.infoWindowTitleColor, fontSize: 10),
         children: [
           TextSpan(
             text: content,
             style: TextStyle(
-                color: this.chartColors.infoWindowNormalColor, fontSize: 10),
+                color: chartColors.infoWindowNormalColor, fontSize: 10),
           ),
         ],
       ),

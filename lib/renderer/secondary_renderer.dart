@@ -33,8 +33,8 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           fixedLength: fixedLength,
           gridColor: chartColors.gridColor,
         ) {
-    mMACDWidth = this.chartStyle.macdWidth;
-    barWidth = this.chartStyle.barWidth;
+    mMACDWidth = chartStyle.macdWidth;
+    barWidth = chartStyle.barWidth;
   }
 
   @override
@@ -48,23 +48,23 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           break;
         case SecondaryState.KDJ:
           drawLine(lastPoint.k, curPoint.k, canvas, lastX, curX,
-              this.chartColors.kColor);
+              chartColors.kColor);
           drawLine(lastPoint.d, curPoint.d, canvas, lastX, curX,
-              this.chartColors.dColor);
+              chartColors.dColor);
           drawLine(lastPoint.j, curPoint.j, canvas, lastX, curX,
-              this.chartColors.jColor);
+              chartColors.jColor);
           break;
         case SecondaryState.RSI:
           drawLine(lastPoint.rsi, curPoint.rsi, canvas, lastX, curX,
-              this.chartColors.rsiColor);
+              chartColors.rsiColor);
           break;
         case SecondaryState.WR:
           drawLine(lastPoint.r, curPoint.r, canvas, lastX, curX,
-              this.chartColors.rsiColor);
+              chartColors.rsiColor);
           break;
         case SecondaryState.CCI:
           drawLine(lastPoint.cci, curPoint.cci, canvas, lastX, curX,
-              this.chartColors.rsiColor);
+              chartColors.rsiColor);
           break;
         default:
           break;
@@ -122,14 +122,14 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
   /// DIF: The the MACD line.
   void drawMACD(KLineEntity curPoint, Canvas canvas, double curX,
       KLineEntity lastPoint, double lastX,
-      {String? indicatorName = null}) {
+      {String? indicatorName}) {
     double macd = curPoint.macd ?? 0;
     double curDif = curPoint.dif ?? 0; // DIF is the MACD line
     double curDea = curPoint.dea ?? 0; // DEA is the signal line for MACD
     double lastDif = lastPoint.dif ?? 0;
     double lastDea = lastPoint.dea ?? 0;
-    Color difColor = this.chartColors.difColor;
-    Color deaColor = this.chartColors.deaColor;
+    Color difColor = chartColors.difColor;
+    Color deaColor = chartColors.deaColor;
     if (indicatorName != null) {
       // if indicatorName is not null, then use the custom MACD data
       final curCustData =
@@ -149,10 +149,10 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
     double zeroy = getY(0);
     if (macd > 0) {
       canvas.drawRect(Rect.fromLTRB(curX - r, macdY, curX + r, zeroy),
-          chartPaint..color = this.chartColors.upColor);
+          chartPaint..color = chartColors.upColor);
     } else {
       canvas.drawRect(Rect.fromLTRB(curX - r, zeroy, curX + r, macdY),
-          chartPaint..color = this.chartColors.dnColor);
+          chartPaint..color = chartColors.dnColor);
     }
     if (lastDif != 0) {
       drawLine(lastDif, curDif, canvas, lastX, curX, difColor);
@@ -201,59 +201,59 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           children = [
             TextSpan(
                 text: "MACD(12,26,9)    ",
-                style: getTextStyle(this.chartColors.defaultTextColor)),
+                style: getTextStyle(chartColors.defaultTextColor)),
             if (data.macd != 0)
               TextSpan(
                   text: "MACD:${format(data.macd)}    ",
-                  style: getTextStyle(this.chartColors.macdColor)),
+                  style: getTextStyle(chartColors.macdColor)),
             if (data.dif != 0)
               TextSpan(
                   text: "DIF:${format(data.dif)}    ",
-                  style: getTextStyle(this.chartColors.difColor)),
+                  style: getTextStyle(chartColors.difColor)),
             if (data.dea != 0)
               TextSpan(
                   text: "DEA:${format(data.dea)}    ",
-                  style: getTextStyle(this.chartColors.deaColor)),
+                  style: getTextStyle(chartColors.deaColor)),
           ];
           break;
         case SecondaryState.KDJ:
           children = [
             TextSpan(
                 text: "KDJ(9,1,3)    ",
-                style: getTextStyle(this.chartColors.defaultTextColor)),
+                style: getTextStyle(chartColors.defaultTextColor)),
             if (data.macd != 0)
               TextSpan(
                   text: "K:${format(data.k)}    ",
-                  style: getTextStyle(this.chartColors.kColor)),
+                  style: getTextStyle(chartColors.kColor)),
             if (data.dif != 0)
               TextSpan(
                   text: "D:${format(data.d)}    ",
-                  style: getTextStyle(this.chartColors.dColor)),
+                  style: getTextStyle(chartColors.dColor)),
             if (data.dea != 0)
               TextSpan(
                   text: "J:${format(data.j)}    ",
-                  style: getTextStyle(this.chartColors.jColor)),
+                  style: getTextStyle(chartColors.jColor)),
           ];
           break;
         case SecondaryState.RSI:
           children = [
             TextSpan(
                 text: "RSI(14):${format(data.rsi)}    ",
-                style: getTextStyle(this.chartColors.rsiColor)),
+                style: getTextStyle(chartColors.rsiColor)),
           ];
           break;
         case SecondaryState.WR:
           children = [
             TextSpan(
                 text: "WR(14):${format(data.r)}    ",
-                style: getTextStyle(this.chartColors.rsiColor)),
+                style: getTextStyle(chartColors.rsiColor)),
           ];
           break;
         case SecondaryState.CCI:
           children = [
             TextSpan(
                 text: "CCI(14):${format(data.cci)}    ",
-                style: getTextStyle(this.chartColors.rsiColor)),
+                style: getTextStyle(chartColors.rsiColor)),
           ];
           break;
         default:
@@ -280,7 +280,7 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
             children = [
               TextSpan(
                   text: "$indicatorName: ",
-                  style: getTextStyle(this.chartColors.rsiColor)),
+                  style: getTextStyle(chartColors.rsiColor)),
               TextSpan(
                   text: indicatorData.primary < 0
                       ? ""
@@ -300,11 +300,11 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
             children = [
               TextSpan(
                   text: "$indicatorName    ",
-                  style: getTextStyle(this.chartColors.defaultTextColor)),
+                  style: getTextStyle(chartColors.defaultTextColor)),
               if (indicatorData.macdHistogram != 0)
                 TextSpan(
                     text: "HISTO:${format(indicatorData.macdHistogram)}    ",
-                    style: getTextStyle(this.chartColors.macdColor)),
+                    style: getTextStyle(chartColors.macdColor)),
               if (indicatorData.macdLine != 0)
                 TextSpan(
                     text: "MACD:${format(indicatorData.macdLine)}    ",
@@ -331,11 +331,11 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     TextPainter maxTp = TextPainter(
-        text: TextSpan(text: "${format(maxValue)}", style: textStyle),
+        text: TextSpan(text: format(maxValue), style: textStyle),
         textDirection: TextDirection.ltr);
     maxTp.layout();
     TextPainter minTp = TextPainter(
-        text: TextSpan(text: "${format(minValue)}", style: textStyle),
+        text: TextSpan(text: format(minValue), style: textStyle),
         textDirection: TextDirection.ltr);
     minTp.layout();
 

@@ -68,7 +68,7 @@ class KChartWidget extends StatefulWidget {
   // Custom Indicator Support
   final List<CustomIndicator>? customIndicators;
 
-  KChartWidget({
+  const KChartWidget({super.key, 
     required this.datas,
     required this.chartStyle,
     required this.chartColors,

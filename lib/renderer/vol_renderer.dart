@@ -16,7 +16,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
           fixedLength: fixedLength,
           gridColor: chartColors.gridColor,
         ) {
-    mVolWidth = this.chartStyle.volWidth;
+    mVolWidth = chartStyle.volWidth;
   }
 
   @override
@@ -30,18 +30,18 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
           Rect.fromLTRB(curX - r, top, curX + r, bottom),
           chartPaint
             ..color = curPoint.close > curPoint.open
-                ? this.chartColors.upColor
-                : this.chartColors.dnColor);
+                ? chartColors.upColor
+                : chartColors.dnColor);
     }
 
     if (lastPoint.MA5Volume != 0) {
       drawLine(lastPoint.MA5Volume, curPoint.MA5Volume, canvas, lastX, curX,
-          this.chartColors.ma5Color);
+          chartColors.ma5Color);
     }
 
     if (lastPoint.MA10Volume != 0) {
       drawLine(lastPoint.MA10Volume, curPoint.MA10Volume, canvas, lastX, curX,
-          this.chartColors.ma10Color);
+          chartColors.ma10Color);
     }
   }
 
@@ -54,15 +54,15 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
       children: [
         TextSpan(
             text: "VOL:${NumberUtil.format(data.vol)}    ",
-            style: getTextStyle(this.chartColors.volColor)),
+            style: getTextStyle(chartColors.volColor)),
         if (data.MA5Volume.notNullOrZero)
           TextSpan(
               text: "MA5:${NumberUtil.format(data.MA5Volume!)}    ",
-              style: getTextStyle(this.chartColors.ma5Color)),
+              style: getTextStyle(chartColors.ma5Color)),
         if (data.MA10Volume.notNullOrZero)
           TextSpan(
               text: "MA10:${NumberUtil.format(data.MA10Volume!)}    ",
-              style: getTextStyle(this.chartColors.ma10Color)),
+              style: getTextStyle(chartColors.ma10Color)),
       ],
     );
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
@@ -73,7 +73,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     TextSpan span =
-        TextSpan(text: "${NumberUtil.format(maxValue)}", style: textStyle);
+        TextSpan(text: NumberUtil.format(maxValue), style: textStyle);
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     tp.paint(

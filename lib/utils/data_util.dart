@@ -102,7 +102,7 @@ class DataUtil {
     }
   }
 
-  static void calcMACD(List<KLineEntity> dataList, {String? name = null}) {
+  static void calcMACD(List<KLineEntity> dataList, {String? name}) {
     double ema12 = 0;
     double ema26 = 0;
     double dif = 0;
