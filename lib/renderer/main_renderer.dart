@@ -19,7 +19,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   // The content area to be drawn
   late Rect _contentRect;
-  double _contentPadding = 5.0;
+  final double _contentPadding = 5.0;
   List<int> maDayList;
   final ChartStyle chartStyle;
   final ChartColors chartColors;
@@ -156,13 +156,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       tileMode: TileMode.clamp,
-      colors: [
-        chartColors.lineFillColor,
-        chartColors.lineFillInsideColor
-      ],
+      colors: [chartColors.lineFillColor, chartColors.lineFillInsideColor],
     ).createShader(Rect.fromLTRB(
         chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
-    mLineFillPaint..shader = mLineFillShader;
+    mLineFillPaint.shader = mLineFillShader;
 
     mLineFillPath ??= Path();
 
@@ -201,8 +198,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           chartColors.ma10Color);
     }
     if (lastPoint.mb != 0) {
-      drawLine(lastPoint.mb, curPoint.mb, canvas, lastX, curX,
-          chartColors.ma5Color);
+      drawLine(
+          lastPoint.mb, curPoint.mb, canvas, lastX, curX, chartColors.ma5Color);
     }
     if (lastPoint.dn != 0) {
       drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX,
