@@ -47,12 +47,12 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           drawMACD(curPoint, canvas, curX, lastPoint, lastX);
           break;
         case SecondaryState.KDJ:
-          drawLine(lastPoint.k, curPoint.k, canvas, lastX, curX,
-              chartColors.kColor);
-          drawLine(lastPoint.d, curPoint.d, canvas, lastX, curX,
-              chartColors.dColor);
-          drawLine(lastPoint.j, curPoint.j, canvas, lastX, curX,
-              chartColors.jColor);
+          drawLine(
+              lastPoint.k, curPoint.k, canvas, lastX, curX, chartColors.kColor);
+          drawLine(
+              lastPoint.d, curPoint.d, canvas, lastX, curX, chartColors.dColor);
+          drawLine(
+              lastPoint.j, curPoint.j, canvas, lastX, curX, chartColors.jColor);
           break;
         case SecondaryState.RSI:
           drawLine(lastPoint.rsi, curPoint.rsi, canvas, lastX, curX,
@@ -91,8 +91,7 @@ class SecondaryRenderer extends BaseChartRenderer<KLineEntity> {
           }
           break;
         case ChartType.candlestick:
-          print('Candlestick chart type not yet supported');
-          break;
+          throw UnimplementedError('Candlestick chart type not yet supported');
         case ChartType.bar:
           drawBarChart(
               curPoint.indicatorDataMap[indicatorName] as BarIndicatorData,

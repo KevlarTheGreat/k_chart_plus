@@ -45,14 +45,12 @@ class ChartPainter extends BaseChartPainter {
   List<int> maDayList;
   final ChartColors chartColors;
   late Paint selectPointPaint, selectorBorderPaint, nowPricePaint;
-  final ChartStyle chartStyle;
   final bool hideGrid;
   final bool showNowPrice;
   final VerticalTextAlignment verticalTextAlignment;
-  final BaseDimension baseDimension;
 
   ChartPainter(
-    this.chartStyle,
+    ChartStyle chartStyle,
     this.chartColors, {
     required this.lines, //For TrendLine
     required this.isTrendLine, //For TrendLine
@@ -64,7 +62,7 @@ class ChartPainter extends BaseChartPainter {
     required isLongPass,
     required selectX,
     required xFrontPadding,
-    required this.baseDimension,
+    required BaseDimension baseDimension,
     isOnTap,
     isTapShowInfoDialog,
     required this.verticalTextAlignment,
@@ -210,9 +208,9 @@ class ChartPainter extends BaseChartPainter {
     if (!hideGrid) {
       mMainRenderer.drawGrid(canvas, mGridRows, mGridColumns);
       mVolRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
-      mSecondaryRendererList.forEach((element) {
+      for (var element in mSecondaryRendererList) {
         element.drawGrid(canvas, mGridRows, mGridColumns);
-      });
+      }
     }
   }
 
@@ -230,9 +228,9 @@ class ChartPainter extends BaseChartPainter {
 
       mMainRenderer.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
       mVolRenderer?.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
-      mSecondaryRendererList.forEach((element) {
+      for (var element in mSecondaryRendererList) {
         element.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
-      });
+      }
     }
 
     if ((isLongPress == true || (isTapShowInfoDialog && isOnTap)) &&
@@ -250,9 +248,9 @@ class ChartPainter extends BaseChartPainter {
       mMainRenderer.drawVerticalText(canvas, textStyle, mGridRows);
     }
     mVolRenderer?.drawVerticalText(canvas, textStyle, mGridRows);
-    mSecondaryRendererList.forEach((element) {
+    for (var element in mSecondaryRendererList) {
       element.drawVerticalText(canvas, textStyle, mGridRows);
-    });
+    }
   }
 
   @override
@@ -435,20 +433,16 @@ class ChartPainter extends BaseChartPainter {
       y = getMainY(mMainHighMaxValue);
     }
 
-    nowPricePaint
-      .color = value >= datas!.last.open
-          ? chartColors.nowPriceUpColor
-          : chartColors.nowPriceDnColor;
+    nowPricePaint.color = value >= datas!.last.open
+        ? chartColors.nowPriceUpColor
+        : chartColors.nowPriceDnColor;
     //first draw the horizontal line
     double startX = 0;
     final max = -mTranslateX + mWidth / scaleX;
-    final space =
-        chartStyle.nowPriceLineSpan + chartStyle.nowPriceLineLength;
+    final space = chartStyle.nowPriceLineSpan + chartStyle.nowPriceLineLength;
     while (startX < max) {
-      canvas.drawLine(
-          Offset(startX, y),
-          Offset(startX + chartStyle.nowPriceLineLength, y),
-          nowPricePaint);
+      canvas.drawLine(Offset(startX, y),
+          Offset(startX + chartStyle.nowPriceLineLength, y), nowPricePaint);
       startX += space;
     }
     //repaint the background and text
@@ -568,7 +562,7 @@ class ChartPainter extends BaseChartPainter {
   }
 
   TextPainter getTextPainter(text, color) {
-    color ??= this.chartColors.defaultTextColor;
+    color ??= chartColors.defaultTextColor;
     TextSpan span = TextSpan(text: "$text", style: getTextStyle(color));
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
