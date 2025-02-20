@@ -2,11 +2,14 @@ import '../entity/k_entity.dart';
 import 'custom_indicator.dart';
 
 class KLineEntity extends KEntity {
+  /*
   late double open;
   late double high;
   late double low;
   late double close;
   late double vol;
+  */
+
   late double? amount;
   double? change;
   double? ratio;
@@ -14,16 +17,23 @@ class KLineEntity extends KEntity {
 
   KLineEntity.fromCustom({
     this.amount,
-    required this.open,
-    required this.close,
+    required double open,
+    required double close,
     this.change,
     this.ratio,
     required this.time,
-    required this.high,
-    required this.low,
-    required this.vol,
+    required double high,
+    required double low,
+    required double vol,
     Map<String, ChartType>? customIndicatorTypes,
   }) {
+    // Initialize members from the mixins
+    this.open = open;
+    this.close = close;
+    this.high = high;
+    this.low = low;
+    this.vol = vol;
+
     // Initialize custom indicator data if provided
     if (customIndicatorTypes != null) {
       addCustomIndicators(customIndicatorTypes: customIndicatorTypes);

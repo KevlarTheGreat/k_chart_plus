@@ -442,8 +442,7 @@ class _PopupPainter {
     return TextPainter(
       text: TextSpan(
         text: "$label: ",
-        style: TextStyle(
-            color: chartColors.infoWindowTitleColor, fontSize: 10),
+        style: TextStyle(color: chartColors.infoWindowTitleColor, fontSize: 10),
         children: [
           TextSpan(
             text: content,

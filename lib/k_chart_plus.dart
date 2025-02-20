@@ -1,5 +1,3 @@
-library;
-
 export 'k_chart_widget.dart'; //layout
 export 'chart_style.dart';
 export 'depth_chart.dart';

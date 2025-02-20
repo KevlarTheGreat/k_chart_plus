@@ -5,13 +5,17 @@ import 'package:k_chart_plus/components/popup_info_view.dart';
 import 'package:k_chart_plus/k_chart_plus.dart';
 import 'renderer/base_dimension.dart';
 
+// ignore: constant_identifier_names
 enum MainState { MA, BOLL, NONE }
 
 // enum SecondaryState { MACD, KDJ, RSI, WR, CCI, NONE }
+// ignore: constant_identifier_names
 enum SecondaryState { MACD, KDJ, RSI, WR, CCI } //no support NONE
 
 class TimeFormat {
+  // ignore: constant_identifier_names
   static const List<String> YEAR_MONTH_DAY = [yyyy, '-', mm, '-', dd];
+  // ignore: constant_identifier_names
   static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [
     yyyy,
     '-',
@@ -68,7 +72,8 @@ class KChartWidget extends StatefulWidget {
   // Custom Indicator Support
   final List<CustomIndicator>? customIndicators;
 
-  const KChartWidget({super.key, 
+  const KChartWidget({
+    super.key,
     required this.datas,
     required this.chartStyle,
     required this.chartColors,
@@ -103,7 +108,7 @@ class KChartWidget extends StatefulWidget {
   });
 
   @override
-  _KChartWidgetState createState() => _KChartWidgetState();
+  State<KChartWidget> createState() => _KChartWidgetState();
 }
 
 class _KChartWidgetState extends State<KChartWidget>
@@ -239,7 +244,7 @@ class _KChartWidgetState extends State<KChartWidget>
       secondaryStateLi: widget.secondaryStateLi,
       customIndicatorLi: widget.customIndicators!,
     );
-    final _painter = ChartPainter(
+    final painter = ChartPainter(
       widget.chartStyle,
       widget.chartColors,
       baseDimension: baseDimension,
@@ -278,7 +283,7 @@ class _KChartWidgetState extends State<KChartWidget>
             // }
 
             if (!widget.isTrendLine &&
-                _painter.isInMainRect(details.localPosition)) {
+                painter.isInMainRect(details.localPosition)) {
               isOnTap = true;
               if (mSelectX != details.localPosition.dx &&
                   widget.isTapShowInfoDialog) {
@@ -384,7 +389,7 @@ class _KChartWidgetState extends State<KChartWidget>
             children: <Widget>[
               CustomPaint(
                 size: Size(double.infinity, baseDimension.mDisplayHeight),
-                painter: _painter,
+                painter: painter,
               ),
               if (widget.showInfoDialog) _buildInfoDialog()
             ],
@@ -456,7 +461,9 @@ class _KChartWidgetState extends State<KChartWidget>
         if ((!isLongPress && !isOnTap) ||
             widget.isLine == true ||
             !snapshot.hasData ||
-            snapshot.data?.kLineEntity == null) return SizedBox();
+            snapshot.data?.kLineEntity == null) {
+          return SizedBox();
+        }
         KLineEntity entity = snapshot.data!.kLineEntity;
         final dialogWidth = mWidth / 3;
         if (snapshot.data!.isLeft) {
