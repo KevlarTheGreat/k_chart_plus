@@ -242,7 +242,7 @@ class _KChartWidgetState extends State<KChartWidget>
       mBaseHeight: widget.mBaseHeight,
       volHidden: widget.volHidden,
       secondaryStateLi: widget.secondaryStateLi,
-      customIndicatorLi: widget.customIndicators!,
+      customIndicatorLi: widget.customIndicators,
     );
     final painter = ChartPainter(
       widget.chartStyle,
