@@ -33,15 +33,14 @@ class BaseDimension {
     required double mBaseHeight,
     required bool volHidden,
     required Set<SecondaryState> secondaryStateLi,
-    required List<CustomIndicator> customIndicatorLi,
+    List<CustomIndicator>? customIndicatorLi,
   }) {
     _mBaseHeight = mBaseHeight;
     _mVolumeHeight = volHidden != true ? _mBaseHeight * 0.2 : 0;
     _mSecondaryHeight = _mBaseHeight * 0.2;
     _mDisplayHeight = _mBaseHeight +
         _mVolumeHeight +
-        //(_mSecondaryHeight * secondaryStateLi.length);
-        (_mSecondaryHeight * (secondaryStateLi.length + customIndicatorLi.length));
-
+        (_mSecondaryHeight *
+            (secondaryStateLi.length + (customIndicatorLi?.length ?? 0)));
   }
 }
