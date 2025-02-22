@@ -246,7 +246,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Stack(children: <Widget>[
                 KChartWidget(
                   datas: datas,
-                  chartStyle: ChartStyle(),
+                  chartStyle: ChartStyle(
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor),
                   chartColors: ChartColors(),
                   mBaseHeight: 360,
                   isTrendLine: false,

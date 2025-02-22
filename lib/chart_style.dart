@@ -159,40 +159,64 @@ class ChartColors {
 }
 
 class ChartStyle {
-  double topPadding = 30.0;
+  final double topPadding;
 
-  double bottomPadding = 20.0;
+  final double bottomPadding;
 
-  double childPadding = 12.0;
+  final double childPadding;
 
   ///point-to-point distance
-  double pointWidth = 11.0;
+  final double pointWidth;
 
   ///candle width
-  double candleWidth = 8.5;
-  double candleLineWidth = 1.0;
+  final double candleWidth;
+  final double candleLineWidth;
 
   ///vol column width
-  double volWidth = 8.5;
+  final double volWidth;
 
   ///macd column width
-  double macdWidth = 1.2;
+  final double macdWidth;
 
   ///Bar column width
-  double barWidth = 4;
+  final double barWidth;
 
   ///vertical-horizontal cross line width
-  double vCrossWidth = 8.5;
-  double hCrossWidth = 0.5;
+  final double vCrossWidth;
+  final double hCrossWidth;
 
   ///(line length - space line - thickness) of the current price
-  double nowPriceLineLength = 4.5;
-  double nowPriceLineSpan = 3.5;
-  double nowPriceLineWidth = 1;
+  final double nowPriceLineLength;
+  final double nowPriceLineSpan;
+  final double nowPriceLineWidth;
 
-  int gridRows = 4;
-  int gridColumns = 4;
+  final int gridRows;
+  final int gridColumns;
 
   ///customize the time below
-  List<String>? dateTimeFormat;
+  final List<String>? dateTimeFormat;
+
+  /// Override the background color
+  final Color? backgroundColor;
+
+  const ChartStyle({
+    this.topPadding = 30.0,
+    this.bottomPadding = 20.0,
+    this.childPadding = 12.0,
+    this.pointWidth = 11.0,
+    this.candleWidth = 8.5,
+    this.candleLineWidth = 1.0,
+    this.volWidth = 8.5,
+    this.macdWidth = 1.2,
+    this.barWidth = 4,
+    this.vCrossWidth = 8.5,
+    this.hCrossWidth = 0.5,
+    this.nowPriceLineLength = 4.5,
+    this.nowPriceLineSpan = 3.5,
+    this.nowPriceLineWidth = 1,
+    this.gridRows = 4,
+    this.gridColumns = 4,
+    this.dateTimeFormat,
+    this.backgroundColor,
+  });
 }

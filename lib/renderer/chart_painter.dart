@@ -162,26 +162,13 @@ class ChartPainter extends BaseChartPainter {
         ));
       }
     }
-
-    /*  Old method
-    for (int i = 0; i < mSecondaryRectList.length; ++i) {
-      mSecondaryRendererList.add(SecondaryRenderer(
-        mSecondaryRectList[i].mRect,
-        mSecondaryRectList[i].mMaxValue,
-        mSecondaryRectList[i].mMinValue,
-        mChildPadding,
-        secondaryStateLi.elementAt(i),
-        fixedLength,
-        chartStyle,
-        chartColors,
-      ));
-    }
-    */
   }
 
   @override
   void drawBg(Canvas canvas, Size size) {
-    Paint mBgPaint = Paint()..color = chartColors.bgColor;
+    Paint mBgPaint = Paint()
+      ..color = chartStyle.backgroundColor ?? chartColors.bgColor;
+
     Rect mainRect =
         Rect.fromLTRB(0, 0, mMainRect.width, mMainRect.height + mTopPadding);
     canvas.drawRect(mainRect, mBgPaint);
