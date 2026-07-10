@@ -17,4 +17,13 @@ mixin CandleEntity {
   double? dn;
 
   double? BOLLMA;
+
+  // TBO Trend overlay values (precomputed by the host app).
+  double? tboFast;
+  double? tboSlow;
+  double? tboUpper;
+  double? tboLower;
+
+  /// TBO regime code: 1 = bullish, 0 = neutral, -1 = bearish.
+  int? tboRegime;
 }

@@ -83,6 +83,21 @@ class ChartColors {
   Color maxColor;
   Color minColor;
 
+  /// TBO Trend fast line color.
+  Color tboFastColor;
+
+  /// TBO Trend slow line color.
+  Color tboSlowColor;
+
+  /// TBO Trend cloud fill color for a bullish (green) regime.
+  Color tboCloudBullColor;
+
+  /// TBO Trend cloud fill color for a bearish (purple) regime.
+  Color tboCloudBearColor;
+
+  /// TBO Trend cloud fill color for a neutral (gray) regime.
+  Color tboCloudNeutralColor;
+
   /// get MA color via index
   Color getMAColor(int index) {
     switch (index % 3) {
@@ -155,6 +170,13 @@ class ChartColors {
     ///The color of the maximum and minimum values in the current display
     this.maxColor = const Color(0xFF222223),
     this.minColor = const Color(0xFF222223),
+
+    /// TBO Trend colors
+    this.tboFastColor = const Color(0xFF00BCD4),
+    this.tboSlowColor = const Color(0xFFE040FB),
+    this.tboCloudBullColor = const Color(0x3300897B),
+    this.tboCloudBearColor = const Color(0x338E24AA),
+    this.tboCloudNeutralColor = const Color(0x229E9E9E),
   });
 }
 

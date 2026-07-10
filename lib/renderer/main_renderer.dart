@@ -92,6 +92,28 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
                 style: getTextStyle(chartColors.ma30Color)),
         ],
       );
+    } else if (state == MainState.TBO_TREND) {
+      final regime = data.tboRegime ?? 0;
+      final regimeLabel =
+          regime > 0 ? "Bull" : (regime < 0 ? "Bear" : "Neutral");
+      final regimeColor = regime > 0
+          ? const Color(0xFF00897B)
+          : (regime < 0 ? const Color(0xFF8E24AA) : chartColors.defaultTextColor);
+      span = TextSpan(
+        children: [
+          TextSpan(
+              text: "TBO $regimeLabel    ",
+              style: getTextStyle(regimeColor)),
+          if (data.tboFast != null)
+            TextSpan(
+                text: "Fast:${format(data.tboFast)}    ",
+                style: getTextStyle(chartColors.tboFastColor)),
+          if (data.tboSlow != null)
+            TextSpan(
+                text: "Slow:${format(data.tboSlow)}    ",
+                style: getTextStyle(chartColors.tboSlowColor)),
+        ],
+      );
     }
     if (span == null) return;
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
@@ -123,6 +145,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         drawMaLine(lastPoint, curPoint, canvas, lastX, curX);
       } else if (state == MainState.BOLL) {
         drawBollLine(lastPoint, curPoint, canvas, lastX, curX);
+      } else if (state == MainState.TBO_TREND) {
+        drawTboTrend(lastPoint, curPoint, canvas, lastX, curX);
       }
     }
   }
@@ -204,6 +228,50 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     if (lastPoint.dn != 0) {
       drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX,
           chartColors.ma30Color);
+    }
+  }
+
+  void drawTboTrend(CandleEntity lastPoint, CandleEntity curPoint,
+      Canvas canvas, double lastX, double curX) {
+    final lastUpper = lastPoint.tboUpper;
+    final lastLower = lastPoint.tboLower;
+    final curUpper = curPoint.tboUpper;
+    final curLower = curPoint.tboLower;
+
+    // Fill the cloud band between upper and lower as a per-segment quad.
+    if (lastUpper != null &&
+        lastLower != null &&
+        curUpper != null &&
+        curLower != null) {
+      final regime = curPoint.tboRegime ?? 0;
+      final fillColor = regime > 0
+          ? chartColors.tboCloudBullColor
+          : (regime < 0
+              ? chartColors.tboCloudBearColor
+              : chartColors.tboCloudNeutralColor);
+      final path = Path()
+        ..moveTo(lastX, getY(lastUpper))
+        ..lineTo(curX, getY(curUpper))
+        ..lineTo(curX, getY(curLower))
+        ..lineTo(lastX, getY(lastLower))
+        ..close();
+      canvas.drawPath(
+        path,
+        Paint()
+          ..isAntiAlias = true
+          ..style = PaintingStyle.fill
+          ..color = fillColor,
+      );
+    }
+
+    // Slow line first so the fast line renders on top.
+    if (lastPoint.tboSlow != null && curPoint.tboSlow != null) {
+      drawLine(lastPoint.tboSlow, curPoint.tboSlow, canvas, lastX, curX,
+          chartColors.tboSlowColor);
+    }
+    if (lastPoint.tboFast != null && curPoint.tboFast != null) {
+      drawLine(lastPoint.tboFast, curPoint.tboFast, canvas, lastX, curX,
+          chartColors.tboFastColor);
     }
   }
 

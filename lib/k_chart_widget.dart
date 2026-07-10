@@ -6,7 +6,7 @@ import 'package:k_chart_plus/k_chart_plus.dart';
 import 'renderer/base_dimension.dart';
 
 // ignore: constant_identifier_names
-enum MainState { MA, BOLL, NONE }
+enum MainState { MA, BOLL, NONE, TBO_TREND }
 
 // enum SecondaryState { MACD, KDJ, RSI, WR, CCI, NONE }
 // ignore: constant_identifier_names

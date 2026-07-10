@@ -273,6 +273,9 @@ abstract class BaseChartPainter extends CustomPainter {
     } else if (mainState == MainState.BOLL) {
       maxPrice = max(item.up ?? 0, item.high);
       minPrice = min(item.dn ?? 0, item.low);
+    } else if (mainState == MainState.TBO_TREND) {
+      maxPrice = max(item.high, item.tboUpper ?? item.high);
+      minPrice = min(item.low, item.tboLower ?? item.low);
     } else {
       maxPrice = item.high;
       minPrice = item.low;
