@@ -25,7 +25,7 @@ class TimeFormat {
     ' ',
     HH,
     ':',
-    nn
+    nn,
   ];
 }
 
@@ -37,7 +37,7 @@ class KChartWidget extends StatefulWidget {
   // final Function()? onSecondaryTap;
   final bool isLine;
   final bool
-      isTapShowInfoDialog; //Whether to enable click to display detailed data
+  isTapShowInfoDialog; //Whether to enable click to display detailed data
   final bool hideGrid;
   final bool showNowPrice;
   final bool showInfoDialog;
@@ -295,8 +295,9 @@ class _KChartWidgetState extends State<KChartWidget>
               enableCordRecord = false;
               Offset p1 = Offset(getTrendLineX(), mSelectY);
               if (!waitingForOtherPairofCords) {
-                lines.add(TrendLine(
-                    p1, Offset(-1, -1), trendLineMax!, trendLineScale!));
+                lines.add(
+                  TrendLine(p1, Offset(-1, -1), trendLineMax!, trendLineScale!),
+                );
               }
 
               if (waitingForOtherPairofCords) {
@@ -391,7 +392,7 @@ class _KChartWidgetState extends State<KChartWidget>
                 size: Size(double.infinity, baseDimension.mDisplayHeight),
                 painter: painter,
               ),
-              if (widget.showInfoDialog) _buildInfoDialog()
+              if (widget.showInfoDialog) _buildInfoDialog(),
             ],
           ),
         );
@@ -418,11 +419,14 @@ class _KChartWidgetState extends State<KChartWidget>
 
   void _onFling(double x) {
     _controller = AnimationController(
-        duration: Duration(milliseconds: widget.flingTime), vsync: this);
+      duration: Duration(milliseconds: widget.flingTime),
+      vsync: this,
+    );
     aniX = null;
     aniX = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
-        .animate(CurvedAnimation(
-            parent: _controller!.view, curve: widget.flingCurve));
+        .animate(
+          CurvedAnimation(parent: _controller!.view, curve: widget.flingCurve),
+        );
     aniX!.addListener(() {
       mScrollX = aniX!.value;
       if (mScrollX <= 0) {

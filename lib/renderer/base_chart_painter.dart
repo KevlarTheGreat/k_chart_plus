@@ -196,48 +196,58 @@ abstract class BaseChartPainter extends CustomPainter {
     // the volume chart height and the secondary chart heights from the total height
     double mainHeight = mDisplayHeight;
     mainHeight -= volHeight;
-    mainHeight -= (secondaryHeight *
+    mainHeight -=
+        (secondaryHeight *
         (secondaryStateLi.length + (customIndicators?.length ?? 0)));
     //mainHeight -= (secondaryHeight * secondaryStateLi.length);
 
     mMainRect = Rect.fromLTRB(0, mTopPadding, mWidth, mTopPadding + mainHeight);
 
     if (volHidden != true) {
-      mVolRect = Rect.fromLTRB(0, mMainRect.bottom + mChildPadding, mWidth,
-          mMainRect.bottom + volHeight);
+      mVolRect = Rect.fromLTRB(
+        0,
+        mMainRect.bottom + mChildPadding,
+        mWidth,
+        mMainRect.bottom + volHeight,
+      );
     }
 
     mSecondaryRectList.clear();
     // Iterate through built-in secondary indicators, adding a rectangle for each
     for (int i = 0; i < secondaryStateLi.length; ++i) {
-      mSecondaryRectList.add(RenderRect(
-        Rect.fromLTRB(
+      mSecondaryRectList.add(
+        RenderRect(
+          Rect.fromLTRB(
             0,
             mMainRect.bottom + volHeight + i * secondaryHeight + mChildPadding,
             mWidth,
             mMainRect.bottom +
                 volHeight +
                 i * secondaryHeight +
-                secondaryHeight),
-      ));
+                secondaryHeight,
+          ),
+        ),
+      );
     }
     // Iterate through custom indicators, adding a rectangle for each
     if (customIndicators != null) {
       for (int i = 0; i < customIndicators!.length; ++i) {
-        mSecondaryRectList.add(RenderRect(
-          Rect.fromLTRB(
-            0,
-            mMainRect.bottom +
-                volHeight +
-                (secondaryStateLi.length + i) * secondaryHeight +
-                mChildPadding,
-            mWidth,
-            mMainRect.bottom +
-                volHeight +
-                (secondaryStateLi.length + i) * secondaryHeight +
-                secondaryHeight,
+        mSecondaryRectList.add(
+          RenderRect(
+            Rect.fromLTRB(
+              0,
+              mMainRect.bottom +
+                  volHeight +
+                  (secondaryStateLi.length + i) * secondaryHeight +
+                  mChildPadding,
+              mWidth,
+              mMainRect.bottom +
+                  volHeight +
+                  (secondaryStateLi.length + i) * secondaryHeight +
+                  secondaryHeight,
+            ),
           ),
-        ));
+        );
       }
     }
   }
@@ -318,10 +328,14 @@ abstract class BaseChartPainter extends CustomPainter {
 
   // get the maximum and minimum of the Vol value
   void getVolMaxMinValue(KLineEntity item) {
-    mVolMaxValue = max(mVolMaxValue,
-        max(item.vol, max(item.MA5Volume ?? 0, item.MA10Volume ?? 0)));
-    mVolMinValue = min(mVolMinValue,
-        min(item.vol, min(item.MA5Volume ?? 0, item.MA10Volume ?? 0)));
+    mVolMaxValue = max(
+      mVolMaxValue,
+      max(item.vol, max(item.MA5Volume ?? 0, item.MA10Volume ?? 0)),
+    );
+    mVolMinValue = min(
+      mVolMinValue,
+      min(item.vol, min(item.MA5Volume ?? 0, item.MA10Volume ?? 0)),
+    );
   }
 
   /// Compute maximum and minimum of secondary value data
@@ -335,31 +349,39 @@ abstract class BaseChartPainter extends CustomPainter {
         case SecondaryState.MACD:
           if (item.macd != null) {
             mSecondaryRectList[index].mMaxValue = max(
-                mSecondaryRectList[index].mMaxValue,
-                max(item.macd!, max(item.dif!, item.dea!)));
+              mSecondaryRectList[index].mMaxValue,
+              max(item.macd!, max(item.dif!, item.dea!)),
+            );
             mSecondaryRectList[index].mMinValue = min(
-                mSecondaryRectList[index].mMinValue,
-                min(item.macd!, min(item.dif!, item.dea!)));
+              mSecondaryRectList[index].mMinValue,
+              min(item.macd!, min(item.dif!, item.dea!)),
+            );
           }
           break;
         // KDJ
         case SecondaryState.KDJ:
           if (item.d != null) {
             mSecondaryRectList[index].mMaxValue = max(
-                mSecondaryRectList[index].mMaxValue,
-                max(item.k!, max(item.d!, item.j!)));
+              mSecondaryRectList[index].mMaxValue,
+              max(item.k!, max(item.d!, item.j!)),
+            );
             mSecondaryRectList[index].mMinValue = min(
-                mSecondaryRectList[index].mMinValue,
-                min(item.k!, min(item.d!, item.j!)));
+              mSecondaryRectList[index].mMinValue,
+              min(item.k!, min(item.d!, item.j!)),
+            );
           }
           break;
         // RSI
         case SecondaryState.RSI:
           if (item.rsi != null) {
-            mSecondaryRectList[index].mMaxValue =
-                max(mSecondaryRectList[index].mMaxValue, item.rsi!);
-            mSecondaryRectList[index].mMinValue =
-                min(mSecondaryRectList[index].mMinValue, item.rsi!);
+            mSecondaryRectList[index].mMaxValue = max(
+              mSecondaryRectList[index].mMaxValue,
+              item.rsi!,
+            );
+            mSecondaryRectList[index].mMinValue = min(
+              mSecondaryRectList[index].mMinValue,
+              item.rsi!,
+            );
           }
           break;
         // WR
@@ -370,10 +392,14 @@ abstract class BaseChartPainter extends CustomPainter {
         // CCI
         case SecondaryState.CCI:
           if (item.cci != null) {
-            mSecondaryRectList[index].mMaxValue =
-                max(mSecondaryRectList[index].mMaxValue, item.cci!);
-            mSecondaryRectList[index].mMinValue =
-                min(mSecondaryRectList[index].mMinValue, item.cci!);
+            mSecondaryRectList[index].mMaxValue = max(
+              mSecondaryRectList[index].mMaxValue,
+              item.cci!,
+            );
+            mSecondaryRectList[index].mMinValue = min(
+              mSecondaryRectList[index].mMinValue,
+              item.cci!,
+            );
           }
           break;
         default:
@@ -389,32 +415,47 @@ abstract class BaseChartPainter extends CustomPainter {
         CustomIndicatorData? indicatorData =
             item.indicatorDataMap[customIndicator.name];
         if (indicatorData is LineIndicatorData) {
-          mSecondaryRectList[index].mMaxValue =
-              max(mSecondaryRectList[index].mMaxValue, indicatorData.value);
-          mSecondaryRectList[index].mMinValue =
-              min(mSecondaryRectList[index].mMinValue, indicatorData.value);
+          mSecondaryRectList[index].mMaxValue = max(
+            mSecondaryRectList[index].mMaxValue,
+            indicatorData.value,
+          );
+          mSecondaryRectList[index].mMinValue = min(
+            mSecondaryRectList[index].mMinValue,
+            indicatorData.value,
+          );
         }
         if (indicatorData is BarIndicatorData) {
           mSecondaryRectList[index].mMaxValue = max(
-              mSecondaryRectList[index].mMaxValue,
-              max(indicatorData.primary, indicatorData.secondary));
+            mSecondaryRectList[index].mMaxValue,
+            max(indicatorData.primary, indicatorData.secondary),
+          );
           mSecondaryRectList[index].mMinValue = 0;
         }
         if (indicatorData is CandleIndicatorData) {
-          mSecondaryRectList[index].mMaxValue =
-              max(mSecondaryRectList[index].mMaxValue, indicatorData.high);
-          mSecondaryRectList[index].mMinValue =
-              min(mSecondaryRectList[index].mMinValue, indicatorData.low);
+          mSecondaryRectList[index].mMaxValue = max(
+            mSecondaryRectList[index].mMaxValue,
+            indicatorData.high,
+          );
+          mSecondaryRectList[index].mMinValue = min(
+            mSecondaryRectList[index].mMinValue,
+            indicatorData.low,
+          );
         }
         if (indicatorData is MACDIndicatorData) {
           mSecondaryRectList[index].mMaxValue = max(
-              mSecondaryRectList[index].mMaxValue,
-              max(indicatorData.macdHistogram,
-                  max(indicatorData.macdLine, indicatorData.signalLine)));
+            mSecondaryRectList[index].mMaxValue,
+            max(
+              indicatorData.macdHistogram,
+              max(indicatorData.macdLine, indicatorData.signalLine),
+            ),
+          );
           mSecondaryRectList[index].mMinValue = min(
-              mSecondaryRectList[index].mMinValue,
-              min(indicatorData.macdHistogram,
-                  min(indicatorData.macdLine, indicatorData.signalLine)));
+            mSecondaryRectList[index].mMinValue,
+            min(
+              indicatorData.macdHistogram,
+              min(indicatorData.macdLine, indicatorData.signalLine),
+            ),
+          );
         }
         //TODO: Add cases for other CustomIndicatorData types as needed
       }

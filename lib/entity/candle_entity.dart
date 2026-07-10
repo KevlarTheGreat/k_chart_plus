@@ -7,13 +7,13 @@ mixin CandleEntity {
 
   List<double>? maValueList;
 
-// Upper track line
+  // Upper track line
   double? up;
 
-// Middle track line
+  // Middle track line
   double? mb;
 
-// Lower track line
+  // Lower track line
   double? dn;
 
   double? BOLLMA;
